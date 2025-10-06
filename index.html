@@ -1,392 +1,204 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Saisie rapide</title>
-  <meta name="viewport" content="width=390, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <link rel="apple-touch-icon" href="logo1.png" />
-
-  <!-- Flatpickr (calendrier, 1 tap = 1 date) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/fr.js"></script>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I Need Resell</title>
   <style>
-    :root{
-      --primary:#6f57d3; --bg:#f2f2f7; --fg:#111; --border:#d9d9de; --r:14px; --pad:18px; --maxw:390px;
-      --hint:#6a6a6a;
+    :root {
+      --bg: #f5f5fa;
+      --purple: #7b5cff;
+      --pad: 16px;
     }
-    html,body{height:100%; overflow:hidden;}
-    body{
-      margin:0; padding:0; background:var(--bg); color:var(--fg);
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-      font-size:18px; line-height:1.35; -webkit-text-size-adjust:100%; overscroll-behavior:none;
-    }
-    .screen{ position:fixed; inset:0; display:flex; flex-direction:column;
-      padding:calc(env(safe-area-inset-top,0)) env(safe-area-inset-right,0) 0 env(safe-area-inset-left,0);
-    }
-    .wrap{ width:100%; max-width:var(--maxw); margin:0 auto; box-sizing:border-box; padding:0 var(--pad); }
-
-    /* Header GIF : entier, coins arrondis visibles */
-    .header{ width:100%; background:transparent; }
-    .header .wrap{ padding:12px var(--pad) 6px; }
-    .header-gif{
-      width:100%; height:64px; display:block; margin:0 auto;
-      object-fit:contain;               /* montre l'image complète */
-      border-radius:14px;               /* coins arrondis */
-      background:transparent;           /* pas de fond parasite */
+    body {
+      font-family: "Inter", sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: var(--pad);
     }
 
-    .content{ flex:1; min-height:0; display:flex; }
-    .content .wrap{ padding:6px var(--pad) 12px; display:flex; flex-direction:column; gap:14px; }
-
-    label{ display:block; font-size:18px; font-weight:700; margin:6px 0 8px; }
-    .hint{ font-size:14px; color:var(--hint); margin-top:6px; }
-
-    input, select{
-      width:100%; box-sizing:border-box; background:#fff; border:1px solid var(--border); border-radius:var(--r);
-      padding:14px 16px; font-size:18px; min-height:52px; outline:none;
-    }
-    input:focus,select:focus{ border-color:#c7b8ff; box-shadow:0 0 0 3px rgba(111,87,211,.15); }
-
-    /* Select avec chevron bleu propre (remplace l'ancien pseudo-element) */
-    select{
-      -webkit-appearance:none; -moz-appearance:none; appearance:none;
-      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M6 9l6 6 6-6' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-      background-repeat:no-repeat; background-position:right 14px center; background-size:16px 16px;
-      padding-right:44px; /* laisse la place pour la flèche */
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
     }
 
-    .row{ display:flex; gap:18px; margin-bottom:4px; }    /* + d'espace : cases ne se touchent pas */
-    .row .field{ flex:1; min-width:0; display:flex; flex-direction:column; }
-
-    .subline{ display:flex; justify-content:flex-end; margin-top:8px; }
-    .add-link{
-      background:none; border:none; color:var(--primary); font-size:15px; text-decoration:underline; padding:0; cursor:pointer;
+    /* === GIF arrondi === */
+    .header-gif-frame {
+      width: 100%;
+      height: 65px;
+      border-radius: 18px;
+      overflow: hidden;
+      background: transparent;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-    .add-link[disabled]{ opacity:.6; cursor:default; }
 
-    .actions{ padding:10px 0 calc(env(safe-area-inset-bottom,0) + 14px);
-      background:linear-gradient(180deg, rgba(242,242,247,0) 0%, var(--bg) 50%);
+    .header-gif {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 18px;
     }
-    .actions .wrap{ padding-top:0; }
-    #submit{
-      width:100%; height:60px; border:none; border-radius:16px; background:var(--primary); color:#fff;
-      font-size:20px; font-weight:800; letter-spacing:.2px; box-shadow:0 10px 24px rgba(111,87,211,.25); cursor:pointer; touch-action:manipulation;
-    }
-    #submit:disabled{ opacity:.6; cursor:default; }
-    .msg{ font-size:16px; margin-top:6px; }
-    .ok{ color:#0a8a0a; } .err{ color:#c62828; }
 
-    /* case "Actif" compacte */
-    .abo-active{ display:flex; align-items:center; gap:10px; margin-top:4px; }
-    .abo-active input{ width:20px; height:20px; }
+    h2 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    label {
+      font-weight: 600;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--purple);
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .row > div {
+      flex: 1;
+    }
+
+    button {
+      background: var(--purple);
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:disabled {
+      background: #c3b4ff;
+    }
+
+    .loader {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid white;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      animation: spin 0.9s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    small {
+      font-size: 13px;
+      color: #666;
+      margin-top: -8px;
+    }
+
+    @media (max-width: 600px) {
+      .row { flex-direction: column; }
+    }
   </style>
 </head>
 <body>
-  <div class="screen">
-    <div class="header">
-      <div class="wrap">
-        <img src="go.gif" alt="I Need Resell" class="header-gif">
-      </div>
-    </div>
 
-    <main class="content">
-      <div class="wrap">
-
-        <label>Type de transaction</label>
-        <select id="type">
-          <option>Achat stock</option>
-          <option>Frais annexes</option>
-          <option>Vente/Cashout</option>
-          <option>Abonnement (mensuel)</option>
-          <option>Paiement</option>
-        </select>
-
-        <!-- ACHAT -->
-        <div id="bloc-achat" class="bloc">
-          <label>Item / Référence</label>
-          <input id="item" type="text" placeholder="Ex: 100 Jeans Levi's 501">
-
-          <div class="row">
-            <div class="field">
-              <label>Date</label>
-              <input id="date-achat" type="text" inputmode="numeric" placeholder="jj/mm/aaaa">
-              <input id="date-achat-iso" type="hidden">
-            </div>
-            <div class="field">
-              <label>Montant (€)</label>
-              <input id="montant-achat" type="text" inputmode="decimal" placeholder="ex: 79,90">
-              <div class="hint">Décimales : virgule ou point</div>
-            </div>
-          </div>
-
-          <label>Fournisseur</label>
-          <select id="fournisseur"></select>
-          <div class="subline"><button class="add-link" type="button" data-kind="fournisseur">+ ajouter</button></div>
-        </div>
-
-        <!-- FRAIS -->
-        <div id="bloc-frais" class="bloc" style="display:none">
-          <label>Description du frais</label>
-          <input id="frais-desc" type="text" placeholder="Ex: Pochettes, URSSAF, etc.">
-
-          <div class="row">
-            <div class="field">
-              <label>Date</label>
-              <input id="date-frais" type="text" inputmode="numeric" placeholder="jj/mm/aaaa">
-              <input id="date-frais-iso" type="hidden">
-            </div>
-            <div class="field">
-              <label>Montant (€)</label>
-              <input id="montant-frais" type="text" inputmode="decimal" placeholder="ex: 12,50">
-              <div class="hint">Décimales : virgule ou point</div>
-            </div>
-          </div>
-
-          <label>Catégorie</label>
-          <select id="categorie"></select>
-          <div class="subline"><button class="add-link" type="button" data-kind="categorie">+ ajouter</button></div>
-        </div>
-
-        <!-- VENTE -->
-        <div id="bloc-vente" class="bloc" style="display:none">
-          <div class="row">
-            <div class="field">
-              <label>Date</label>
-              <input id="date-vente" type="text" inputmode="numeric" placeholder="jj/mm/aaaa">
-              <input id="date-vente-iso" type="hidden">
-            </div>
-            <div class="field">
-              <label>Montant (€)</label>
-              <input id="montant-vente" type="text" inputmode="decimal" placeholder="ex: 45">
-              <div class="hint">Décimales : virgule ou point</div>
-            </div>
-          </div>
-
-          <label>Compte Vinted</label>
-          <select id="compte-vinted"></select>
-          <div class="subline"><button class="add-link" type="button" data-kind="compteVinted">+ ajouter</button></div>
-        </div>
-
-        <!-- ABONNEMENT -->
-        <div id="bloc-abo" class="bloc" style="display:none">
-          <label>Nom de l’abonnement</label>
-          <input id="abo-nom" type="text" placeholder="Ex: ChatGPT Plus">
-
-          <div class="row">
-            <div class="field">
-              <label>Montant (€)</label>
-              <input id="abo-montant" type="text" inputmode="decimal" placeholder="ex: 20">
-              <div class="hint">Décimales : virgule ou point</div>
-            </div>
-            <div class="field">
-              <label>Jour du mois</label>
-              <input id="abo-jour" type="number" min="1" max="31" value="5">
-            </div>
-          </div>
-
-          <label>Catégorie</label>
-          <select id="abo-categorie"></select>
-
-          <div class="abo-active">
-            <input id="abo-actif" type="checkbox" checked>
-            <label for="abo-actif" style="margin:0;">Actif</label>
-          </div>
-        </div>
-
-        <!-- PAIEMENT -->
-        <div id="bloc-paiement" class="bloc" style="display:none">
-          <div class="row">
-            <div class="field">
-              <label>Date</label>
-              <input id="date-paiement" type="text" inputmode="numeric" placeholder="jj/mm/aaaa">
-              <input id="date-paiement-iso" type="hidden">
-            </div>
-            <div class="field">
-              <label>Montant (€)</label>
-              <input id="montant-paiement" type="text" inputmode="decimal" placeholder="ex: 1000">
-              <div class="hint">Décimales : virgule ou point</div>
-            </div>
-          </div>
-        </div>
-
-        <div id="feedback" class="msg ok" style="display:none;"></div>
-        <div id="error" class="msg err" style="display:none;"></div>
-      </div>
-    </main>
-
-    <div class="actions">
-      <div class="wrap"><button id="submit">+ Ajouter</button></div>
+  <div class="header">
+    <div class="header-gif-frame">
+      <img src="go.gif" alt="I Need Resell" class="header-gif">
     </div>
   </div>
 
+  <form id="transactionForm">
+    <div>
+      <label for="type">Type de transaction</label>
+      <select id="type" name="type">
+        <option value="Achat stock">Achat stock</option>
+        <option value="Vente cashout">Vente cashout</option>
+        <option value="Frais annexes">Frais annexes</option>
+        <option value="Abonnement mensuel">Abonnement mensuel</option>
+        <option value="Paiement">Paiement</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="item">Item / Référence</label>
+      <input type="text" id="item" placeholder="Ex: 100 Jeans Levi's 501">
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="date">Date</label>
+        <input type="date" id="date">
+      </div>
+      <div>
+        <label for="montant">Montant (€)</label>
+        <input type="number" id="montant" placeholder="ex: 79,90" step="0.01">
+        <small>Décimales : virgule ou point</small>
+      </div>
+    </div>
+
+    <div>
+      <label for="fournisseur">Fournisseur</label>
+      <select id="fournisseur">
+        <option>Vinted</option>
+      </select>
+      <a href="#" id="ajouterFournisseur">+ ajouter</a>
+    </div>
+
+    <button id="submitBtn" type="submit">
+      <span>+ Ajouter</span>
+    </button>
+  </form>
+
   <script>
-    const ENDPOINT = "https://script.google.com/macros/s/AKfycbzF3P3AE1hcHuyFRZLnBS9eKtu0nz1jVyLxv8Ej0CbA78G-_ssXd2e-I9zgk58qqke46w/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbzF3P3AE1hcHuyFRZLnBS9eKtu0nz1jVyLxv8Ej0CbA78G-_ssXd2e-I9zgk58qqke46w/exec";
 
-    const $ = id => document.getElementById(id);
-    const blocs = {
-      "Achat stock":"bloc-achat",
-      "Frais annexes":"bloc-frais",
-      "Vente/Cashout":"bloc-vente",
-      "Abonnement (mensuel)":"bloc-abo",
-      "Paiement":"bloc-paiement"
-    };
+    const form = document.getElementById("transactionForm");
+    const button = document.getElementById("submitBtn");
 
-    function switchTypeUI(){
-      const t = $("type").value;
-      Object.values(blocs).forEach(id=>document.getElementById(id).style.display="none");
-      document.getElementById(blocs[t]).style.display = "block";
-      hideMsgs();
-    }
-    $("type").addEventListener("change", switchTypeUI);
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+      button.disabled = true;
+      button.innerHTML = '<div class="loader"></div><span>Ajout en cours...</span>';
 
-    function hideMsgs(){ $("feedback").style.display="none"; $("error").style.display="none"; }
-
-    // ===== Dates JJ/MM/AAAA → hidden ISO =====
-    function toISOFromFR(str){
-      const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(str).trim());
-      if(!m) return "";
-      const dd = String(m[1]).padStart(2,"0");
-      const mm = String(m[2]).padStart(2,"0");
-      const yy = m[3];
-      return `${yy}-${mm}-${dd}`;
-    }
-    function todayFR(){
-      const t=new Date(), d=String(t.getDate()).padStart(2,"0"), m=String(t.getMonth()+1).padStart(2,"0"), y=t.getFullYear();
-      return `${d}/${m}/${y}`;
-    }
-    function initPicker(inputId, hiddenId){
-      const input = $(inputId), hidden = $(hiddenId);
-      if(!input) return;
-      input.value = todayFR();
-      hidden.value = toISOFromFR(input.value);
-
-      flatpickr(input, {
-        locale: flatpickr.l10ns.fr,
-        dateFormat: "d/m/Y",
-        defaultDate: new Date(),
-        clickOpens: true,
-        allowInput: true,
-        disableMobile: true,   // ✅ force le calendrier flatpickr (1 tap = 1 date)
-        onChange: (dates, str) => { hidden.value = toISOFromFR(str); },
-        onClose: (dates, str) => { hidden.value = toISOFromFR(str); }
-      });
-    }
-    // init all date pickers
-    initPicker("date-achat","date-achat-iso");
-    initPicker("date-frais","date-frais-iso");
-    initPicker("date-vente","date-vente-iso");
-    initPicker("date-paiement","date-paiement-iso");
-
-    // Remplir listes
-    function fillSelect(el, arr){
-      el.innerHTML = "";
-      (arr||[]).forEach(v=>{ const o=document.createElement("option"); o.value=o.textContent=v; el.appendChild(o); });
-    }
-    async function loadLists(){
-      try{
-        const r=await fetch(ENDPOINT+"?api=lists");
-        const {data}=await r.json();
-        fillSelect($("fournisseur"), data.fournisseurs);
-        fillSelect($("categorie"), data.categories);
-        fillSelect($("compte-vinted"), data.comptesVinted);
-        fillSelect($("abo-categorie"), data.categories);
-      }catch(e){
-        $("error").textContent="Erreur listes: "+e.message; $("error").style.display="block";
+      try {
+        await fetch(scriptURL, { method: "POST", body: JSON.stringify(data) });
+        button.innerHTML = "✅ Ajouté";
+      } catch (error) {
+        button.innerHTML = "❌ Erreur";
       }
-    }
 
-    // + ajouter (paramètres) avec états
-    document.body.addEventListener("click", async (e)=>{
-      if(!e.target.matches(".add-link")) return;
-      const btn = e.target;
-      const kind = btn.getAttribute("data-kind");
-      const labels={categorie:"Nouvelle catégorie",fournisseur:"Nouveau fournisseur",compteVinted:"Nouveau compte Vinted"};
-      const val = prompt((labels[kind]||"Nouvelle valeur")+" :");
-      if(!val) return;
-
-      try{
-        btn.disabled=true; const baseText=btn.textContent; btn.textContent="Ajout en cours…";
-        const params = new URLSearchParams();
-        params.append("action","addParam");
-        params.append("kind", kind);
-        params.append("value", val);
-
-        const r = await fetch(ENDPOINT, {
-          method:"POST",
-          headers:{ "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8" },
-          body: params.toString()
-        });
-        const json = await r.json();
-        if(!json.ok) throw new Error(json.error||"Erreur ajout paramètre");
-        const d=json.data||{};
-        if(kind==='fournisseur') fillSelect($("fournisseur"), d.fournisseurs||[]);
-        if(kind==='categorie'){ fillSelect($("categorie"), d.categories||[]); fillSelect($("abo-categorie"), d.categories||[]); }
-        if(kind==='compteVinted') fillSelect($("compte-vinted"), d.comptesVinted||[]);
-        btn.textContent="Ajouté ✓"; setTimeout(()=>{ btn.textContent=baseText; btn.disabled=false; },900);
-      }catch(err){
-        btn.disabled=false; alert("Erreur: "+err.message);
-      }
+      setTimeout(() => {
+        button.disabled = false;
+        button.innerHTML = "<span>+ Ajouter</span>";
+      }, 1800);
     });
-
-    // Soumission
-    $("submit").addEventListener("click", async ()=>{
-      hideMsgs();
-      $("submit").disabled=true;
-      const baseLabel = "+ Ajouter";
-      $("submit").textContent = "Ajout en cours…";
-
-      const type=$("type").value; const p={ type };
-
-      function need(v){ return v!=null && String(v).trim()!==""; }
-
-      try{
-        if(type==="Achat stock"){
-          if(!need($("montant-achat").value)) throw new Error("Montant requis.");
-          p.item=$("item").value; p.dateISO=$("date-achat-iso").value; p.montant=$("montant-achat").value; p.fournisseur=$("fournisseur").value;
-        } else if(type==="Frais annexes"){
-          if(!need($("montant-frais").value)) throw new Error("Montant requis.");
-          p.fraisDesc=$("frais-desc").value; p.dateISO=$("date-frais-iso").value; p.montant=$("montant-frais").value; p.categorie=$("categorie").value;
-        } else if(type==="Vente/Cashout"){
-          if(!need($("montant-vente").value)) throw new Error("Montant requis.");
-          p.dateISO=$("date-vente-iso").value; p.montant=$("montant-vente").value; p.compteVinted=$("compte-vinted").value;
-        } else if(type==="Abonnement (mensuel)"){
-          if(!need($("abo-montant").value)) throw new Error("Montant requis.");
-          p.aboNom=$("abo-nom").value; p.montant=$("abo-montant").value; p.aboJour=$("abo-jour").value; p.categorie=$("abo-categorie").value;
-          p.aboActif = $("abo-actif").checked ? "1" : "";   // ✅ "" => Apps Script met "Non"
-        } else { // Paiement
-          if(!need($("montant-paiement").value)) throw new Error("Montant requis.");
-          p.dateISO=$("date-paiement-iso").value; p.montant=$("montant-paiement").value;
-        }
-
-        const params = new URLSearchParams();
-        for (const [k,v] of Object.entries(p)) params.append(k, String(v));
-
-        const r = await fetch(ENDPOINT, {
-          method:"POST",
-          headers:{ "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8" },
-          body: params.toString()
-        });
-        const json = await r.json().catch(()=>({}));
-        if(!r.ok||json.ok===false) throw new Error(json.error||("HTTP "+r.status));
-
-        $("feedback").textContent="Ajouté ✅";
-        $("feedback").style.display="block";
-      }catch(e){
-        $("error").textContent="Erreur: "+e.message;
-        $("error").style.display="block";
-      }finally{
-        $("submit").disabled=false;
-        $("submit").textContent = baseLabel;
-      }
-    });
-
-    // Start
-    switchTypeUI();
-    loadLists();
   </script>
 </body>
 </html>
