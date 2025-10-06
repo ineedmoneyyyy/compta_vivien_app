@@ -22,11 +22,14 @@
     .screen{min-height:100vh; display:flex; flex-direction:column;}
     .wrap{ width:100%; max-width:var(--maxw); margin:0 auto; box-sizing:border-box; padding:0 var(--pad); }
 
-    /* ===== Bandeau GIF : FIN, NON ROGNÉ, ARRONDI, SANS FOND ===== */
-    .header{ padding:10px var(--pad) 0; }
+    /* ===== Bandeau GIF fin avec bords arrondis ===== */
+    .header{ padding:12px var(--pad) 0; }
     .gif-box{
-      width:100%; height:56px; border-radius:22px; overflow:hidden;
+      width:100%; height:56px;
+      border-radius:22px;           /* ARRONDIS visibles */
+      overflow:hidden;              /* masque l’intérieur -> pas d’angles carrés */
       display:flex; align-items:center; justify-content:center;
+      background:transparent;
     }
     .gif-box img{
       width:100%; height:100%; object-fit:contain; display:block;
@@ -47,11 +50,10 @@
       background-position:
         calc(100% - 20px) calc(50% - 3px),
         calc(100% - 14px) calc(50% - 3px);
-      background-size:6px 6px, 6px 6px;
-      background-repeat:no-repeat;
+      background-size:6px 6px, 6px 6px; background-repeat:no-repeat;
     }
 
-    .row{ display:flex; gap:16px; align-items:flex-start; margin-bottom:8px; }
+    .row{ display:flex; gap:16px; align-items:flex-start; margin:0 0 12px 0; }
     .field{ flex:1; min-width:0; }
     .hint{ font-size:14px; color:#666; margin-top:6px; }
 
@@ -190,7 +192,7 @@
   </div>
 
   <script>
-    // ====== Ton Apps Script ======
+    // ====== Apps Script ======
     const ENDPOINT = "https://script.google.com/macros/s/AKfycbzF3P3AE1hcHuyFRZLnBS9eKtu0nz1jVyLxv8Ej0CbA78G-_ssXd2e-I9zgk58qqke46w/exec";
 
     const $ = id => document.getElementById(id);
