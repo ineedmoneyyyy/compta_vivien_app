@@ -7,70 +7,95 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="apple-touch-icon" href="logo1.png" />
+
+  <!-- Flatpickr (calendrier mobile, tap = validé) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/fr.js"></script>
+
   <style>
-    :root{ --primary:#6f57d3; --bg:#f2f2f7; --fg:#111; --border:#d9d9de; --r:14px; --pad:16px; --maxw:420px; }
+    :root{
+      --primary:#6f57d3; --bg:#f2f2f7; --fg:#111; --border:#d9d9de;
+      --r:14px; --pad:18px; --maxw:420px;
+      --gap:14px; --gap-sm:10px;
+    }
     html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.35}
+    body{
+      margin:0; padding:0; background:var(--bg); color:var(--fg);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      font-size:18px; line-height:1.35; -webkit-text-size-adjust:100%;
+    }
+    .screen{position:fixed; inset:0; display:flex; flex-direction:column;
+      padding:calc(env(safe-area-inset-top,0)) env(safe-area-inset-right,0) 0 env(safe-area-inset-left,0);}
+    .wrap{width:100%; max-width:var(--maxw); margin:0 auto; box-sizing:border-box; padding:0 var(--pad);}
+    .header{ width:100%; }
+    .header .wrap{ padding:10px var(--pad) 0; }
 
-    .screen{min-height:100dvh;display:flex;flex-direction:column;
-      padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
-    .wrap{width:100%;max-width:var(--maxw);margin:0 auto;box-sizing:border-box;padding:0 var(--pad)}
-
-    /* ===== HEADER GIF : image seule, pas de fond, pas de carte ===== */
-    .header{padding:8px var(--pad) 6px}
-    .header img{
-      display:block; width:100%; height:auto;               /* entier (on ne crop pas) */
-      object-fit:contain;                                    /* on voit les vagues droite/gauche */
-      border-radius:14px;                                    /* très léger arrondi */
-      background:transparent;                                /* pas de fond ajouté */
+    /* GIF plein, sans bordures visibles */
+    .header-gif{
+      width:100%; height:76px; border-radius:18px; display:block;
+      object-fit:cover; object-position:center;
+      background:#000; /* évite halo */
     }
 
-    h1{display:none}
-    label{display:block;font-weight:700;margin:14px 0 8px}
-    input,select{
-      width:100%;box-sizing:border-box;background:#fff;border:1px solid var(--border);border-radius:12px;
-      padding:14px 16px;font-size:16px;min-height:48px;outline:none
+    .content{ flex:1; min-height:0; display:flex; }
+    .content .wrap{ padding:14px var(--pad) 12px; display:flex; flex-direction:column; gap:var(--gap); }
+
+    label{ display:block; font-weight:800; margin:6px 0 8px; font-size:20px; }
+    .sub-label{font-weight:700; font-size:18px; margin:6px 0 6px;}
+
+    input, select{
+      width:100%; box-sizing:border-box; background:#fff; border:1px solid var(--border); border-radius:var(--r);
+      padding:14px 16px; font-size:18px; min-height:52px; outline:none; appearance:none;
     }
-    input:focus,select:focus{border-color:#c7b8ff;box-shadow:0 0 0 3px rgba(111,87,211,.15)}
+    input:focus,select:focus{ border-color:#c7b8ff; box-shadow:0 0 0 3px rgba(111,87,211,.15); }
 
-    /* Les deux colonnes : on augmente le gap pour qu'elles ne se touchent jamais */
-    .row{display:flex;gap:20px;margin:0 0 14px 0}
-    .row .field{flex:1;min-width:0;display:flex;flex-direction:column}
-
-    /* flèche bleue sur toutes les listes */
+    /* Flèche bleue iOS-like pour tous les <select> */
     select{
-      appearance:none;-webkit-appearance:none;background-color:#fff;
-      background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="%235f8cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
-      background-repeat:no-repeat;background-position:right 12px center;background-size:22px 22px;padding-right:42px
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%232668FF" d="M7 10l5 5 5-5"/></svg>');
+      background-repeat: no-repeat; background-position: right 12px center; background-size: 18px 18px;
+      padding-right:44px;
     }
 
-    .hint{font-size:13px;color:#666;margin:8px 2px 0}
-    .tiny-check{display:flex;align-items:center;gap:10px;margin-top:6px}
-    .tiny-check input{width:18px;height:18px;transform:scale(.95)}
+    .row{ display:grid; grid-template-columns: 1fr 1fr; gap:var(--gap-sm); }
+    .hint{ font-size:14px; color:#666; margin-top:8px; }
+    .subline{ display:flex; justify-content:flex-end; margin-top:6px; gap:10px; align-items:center;}
+    .add-link{
+      background:none; border:none; color:var(--primary); font-size:16px; text-decoration:underline; padding:0; cursor:pointer;
+    }
 
-    .msg{font-size:15px;margin-top:8px}
-    .ok{color:#0a8a0a}.err{color:#c62828}
+    /* Toggle Actif compact */
+    .toggle{
+      display:flex; align-items:center; gap:10px; margin-top:6px;
+      font-size:16px;
+    }
+    .toggle input{ width:22px; height:22px; }
 
-    .actions{position:sticky;bottom:0;margin-top:14px;
-      padding:10px var(--pad) calc(env(safe-area-inset-bottom)+14px);
-      background:linear-gradient(180deg, rgba(242,242,247,0) 0%, var(--bg) 60%)}
+    .actions{ padding:10px 0 calc(env(safe-area-inset-bottom,0) + 14px);
+      background:linear-gradient(180deg, rgba(242,242,247,0) 0%, var(--bg) 50%); }
+    .actions .wrap{ padding-top:0; }
+
     #submit{
-      width:100%;max-width:var(--maxw);height:56px;border:none;border-radius:16px;background:var(--primary);color:#fff;
-      font-size:20px;font-weight:800;letter-spacing:.2px;box-shadow:0 10px 24px rgba(111,87,211,.25);cursor:pointer
+      width:100%; height:60px; border:none; border-radius:16px; background:var(--primary); color:#fff;
+      font-size:20px; font-weight:800; letter-spacing:.2px; box-shadow:0 10px 24px rgba(111,87,211,.25);
+      cursor:pointer; touch-action:manipulation;
     }
-    #submit:disabled{opacity:.6;cursor:default}
-    .loading::after{
-      content:""; display:inline-block; width:18px; height:18px; margin-left:8px; vertical-align:-3px;
-      border:2px solid #fff; border-right-color:transparent; border-radius:50%; animation:spin .8s linear infinite;
-    }
-    @keyframes spin{to{transform:rotate(360deg)}}
+    #submit:disabled{ opacity:.7; }
 
-    .section{padding:0 var(--pad)}
+    .msg{ font-size:16px; margin-top:6px; text-align:center; }
+    .msg.ok{ color:#0a8a0a; } .msg.err{ color:#c62828; }
+
+    /* Flatpickr unifiée */
+    .flatpickr-calendar { font-size:16px; }
   </style>
 </head>
 <body>
   <div class="screen">
-    <div class="header"><div class="wrap"><img src="go.gif" alt="I Need Resell"></div></div>
+    <div class="header">
+      <div class="wrap">
+        <img src="go.gif" alt="I Need Resell" class="header-gif">
+      </div>
+    </div>
 
     <main class="content">
       <div class="wrap">
@@ -84,141 +109,169 @@
         </select>
 
         <!-- ACHAT -->
-        <section id="bloc-achat" class="section">
-          <label>Item / Référence</label>
+        <div id="bloc-achat" class="bloc">
+          <div class="sub-label">Item / Référence</div>
           <input id="item" type="text" placeholder="Ex: 100 Jeans Levi's 501">
 
           <div class="row">
-            <div class="field">
-              <label>Date</label>
-              <input id="date-achat" type="date">
+            <div>
+              <div class="sub-label">Date</div>
+              <input id="date-achat" type="text" autocomplete="off">
             </div>
-            <div class="field">
-              <label>Montant (€)</label>
+            <div>
+              <div class="sub-label">Montant (€)</div>
               <input id="montant-achat" type="text" inputmode="decimal" placeholder="ex: 79,90">
               <div class="hint">Décimales : virgule ou point</div>
             </div>
           </div>
 
-          <label>Fournisseur</label>
+          <div class="sub-label">Fournisseur</div>
           <select id="fournisseur"></select>
-          <div class="hint" style="text-align:right">
-            <button type="button" id="add-fs" style="border:none;background:none;color:#6f57d3;text-decoration:underline;cursor:pointer">+ ajouter</button>
+          <div class="subline">
+            <button class="add-link" type="button" data-kind="fournisseur">+ ajouter</button>
+            <span class="add-status" id="status-fournisseur"></span>
           </div>
-        </section>
+        </div>
 
         <!-- FRAIS -->
-        <section id="bloc-frais" class="section" style="display:none">
-          <label>Description du frais</label>
+        <div id="bloc-frais" class="bloc" style="display:none">
+          <div class="sub-label">Description du frais</div>
           <input id="frais-desc" type="text" placeholder="Ex: Pochettes, URSSAF, etc.">
           <div class="row">
-            <div class="field">
-              <label>Date</label>
-              <input id="date-frais" type="date">
+            <div>
+              <div class="sub-label">Date</div>
+              <input id="date-frais" type="text" autocomplete="off">
             </div>
-            <div class="field">
-              <label>Montant (€)</label>
+            <div>
+              <div class="sub-label">Montant (€)</div>
               <input id="montant-frais" type="text" inputmode="decimal" placeholder="ex: 12,50">
               <div class="hint">Décimales : virgule ou point</div>
             </div>
           </div>
-          <label>Catégorie</label>
+
+          <div class="sub-label">Catégorie</div>
           <select id="categorie"></select>
-          <div class="hint" style="text-align:right">
-            <button type="button" id="add-cat" style="border:none;background:none;color:#6f57d3;text-decoration:underline;cursor:pointer">+ ajouter</button>
+          <div class="subline">
+            <button class="add-link" type="button" data-kind="categorie">+ ajouter</button>
+            <span class="add-status" id="status-categorie"></span>
           </div>
-        </section>
+        </div>
 
         <!-- VENTE -->
-        <section id="bloc-vente" class="section" style="display:none">
+        <div id="bloc-vente" class="bloc" style="display:none">
           <div class="row">
-            <div class="field">
-              <label>Date</label>
-              <input id="date-vente" type="date">
+            <div>
+              <div class="sub-label">Date</div>
+              <input id="date-vente" type="text" autocomplete="off">
             </div>
-            <div class="field">
-              <label>Montant (€)</label>
+            <div>
+              <div class="sub-label">Montant (€)</div>
               <input id="montant-vente" type="text" inputmode="decimal" placeholder="ex: 45">
               <div class="hint">Décimales : virgule ou point</div>
             </div>
           </div>
-          <label>Compte Vinted</label>
+
+          <div class="sub-label">Compte Vinted</div>
           <select id="compte-vinted"></select>
-          <div class="hint" style="text-align:right">
-            <button type="button" id="add-cv" style="border:none;background:none;color:#6f57d3;text-decoration:underline;cursor:pointer">+ ajouter</button>
+          <div class="subline">
+            <button class="add-link" type="button" data-kind="compteVinted">+ ajouter</button>
+            <span class="add-status" id="status-compteVinted"></span>
           </div>
-        </section>
+        </div>
 
         <!-- ABONNEMENT -->
-        <section id="bloc-abo" class="section" style="display:none">
-          <label>Nom de l’abonnement</label>
+        <div id="bloc-abo" class="bloc" style="display:none">
+          <div class="sub-label">Nom de l’abonnement</div>
           <input id="abo-nom" type="text" placeholder="Ex: ChatGPT Plus">
           <div class="row">
-            <div class="field">
-              <label>Montant (€)</label>
+            <div>
+              <div class="sub-label">Montant (€)</div>
               <input id="abo-montant" type="text" inputmode="decimal" placeholder="ex: 20">
               <div class="hint">Décimales : virgule ou point</div>
             </div>
-            <div class="field">
-              <label>Jour du mois</label>
+            <div>
+              <div class="sub-label">Jour du mois</div>
               <input id="abo-jour" type="number" min="1" max="31" value="5">
             </div>
           </div>
-          <label>Catégorie</label>
+
+          <div class="sub-label">Catégorie</div>
           <select id="abo-categorie"></select>
-          <div class="tiny-check">
-            <input id="abo-actif" type="checkbox" checked>
-            <label for="abo-actif" style="margin:0">Actif</label>
+          <div class="subline">
+            <button class="add-link" type="button" data-kind="categorie">+ ajouter</button>
+            <span class="add-status" id="status-abo-categorie"></span>
           </div>
-        </section>
+
+          <div class="toggle">
+            <input id="abo-actif" type="checkbox" checked>
+            <label for="abo-actif" style="margin:0;">Actif</label>
+          </div>
+        </div>
 
         <!-- PAIEMENT -->
-        <section id="bloc-paiement" class="section" style="display:none">
+        <div id="bloc-pay" class="bloc" style="display:none">
           <div class="row">
-            <div class="field">
-              <label>Date</label>
-              <input id="date-paiement" type="date">
+            <div>
+              <div class="sub-label">Date</div>
+              <input id="date-paiement" type="text" autocomplete="off">
             </div>
-            <div class="field">
-              <label>Montant (€)</label>
+            <div>
+              <div class="sub-label">Montant (€)</div>
               <input id="montant-paiement" type="text" inputmode="decimal" placeholder="ex: 1000">
               <div class="hint">Décimales : virgule ou point</div>
             </div>
           </div>
-        </section>
+        </div>
 
-        <div id="feedback" class="msg" style="display:none"></div>
-        <div id="error" class="msg err" style="display:none"></div>
+        <div id="feedback" class="msg" style="display:none;"></div>
+        <div id="error" class="msg err" style="display:none;"></div>
       </div>
     </main>
 
     <div class="actions">
-      <div class="wrap"><button id="submit">+ Ajouter</button></div>
+      <div class="wrap"><button id="submit">➕ Ajouter</button></div>
     </div>
   </div>
 
   <script>
+    // ✅ Ton Apps Script (celui que tu as donné)
     const ENDPOINT = "https://script.google.com/macros/s/AKfycbzF3P3AE1hcHuyFRZLnBS9eKtu0nz1jVyLxv8Ej0CbA78G-_ssXd2e-I9zgk58qqke46w/exec";
-    const $ = id => document.getElementById(id);
 
+    const $ = id => document.getElementById(id);
     const blocs = {
       "Achat stock":"bloc-achat",
       "Frais annexes":"bloc-frais",
       "Vente/Cashout":"bloc-vente",
       "Abonnement (mensuel)":"bloc-abo",
-      "Paiement":"bloc-paiement"
+      "Paiement":"bloc-pay"
     };
-    function switchType(){
+    function switchTypeUI(){
+      const t=$("type").value;
       Object.values(blocs).forEach(id=>document.getElementById(id).style.display="none");
-      document.getElementById(blocs[$("type").value]).style.display="block";
-      hideMsgs();
+      document.getElementById(blocs[t]).style.display="block";
+      hideMsg();
     }
-    $("type").addEventListener("change", switchType);
+    $("type").addEventListener("change", switchTypeUI);
 
-    function today(){ const t=new Date(), y=t.getFullYear(), m=String(t.getMonth()+1).padStart(2,"0"), d=String(t.getDate()).padStart(2,"0"); return `${y}-${m}-${d}`; }
-    ["date-achat","date-frais","date-vente","date-paiement"].forEach(id=>{ const el=$(id); if(el) el.value=today(); });
+    function hideMsg(){
+      $("feedback").style.display="none";
+      $("error").style.display="none";
+    }
 
-    function fillSelect(el, arr){ el.innerHTML=""; (arr||[]).forEach(v=>{const o=document.createElement("option"); o.value=o.textContent=v; el.appendChild(o);}); }
+    // Calendriers Flatpickr (tap = validé)
+    (function initCalendars(){
+      const opts = {
+        locale: flatpickr.l10ns.fr,
+        dateFormat: "Y-m-d",
+        defaultDate: new Date(),
+        disableMobile: true,
+        clickOpens: true,
+        onChange(selectedDates, dateStr, instance){ instance.close(); }
+      };
+      ["date-achat","date-frais","date-vente","date-paiement"].forEach(id=>flatpickr("#"+id, opts));
+    })();
+
+    // Chargement des listes
     async function loadLists(){
       try{
         const r=await fetch(ENDPOINT+"?api=lists");
@@ -227,77 +280,118 @@
         fillSelect($("categorie"), data.categories);
         fillSelect($("compte-vinted"), data.comptesVinted);
         fillSelect($("abo-categorie"), data.categories);
-      }catch(e){ showErr("Erreur listes : "+e.message); }
+      }catch(e){
+        showErr("Erreur listes : "+e.message);
+      }
     }
+    function fillSelect(sel, arr){ sel.innerHTML=""; (arr||[]).forEach(v=>{const o=document.createElement("option"); o.value=o.textContent=v; sel.appendChild(o);}); }
 
-    // + ajouter dans Paramètres
-    $("add-fs") && ($("add-fs").onclick = ()=> addParam("fournisseur"));
-    $("add-cat") && ($("add-cat").onclick = ()=> addParam("categorie"));
-    $("add-cv") &&  ($("add-cv").onclick  = ()=> addParam("compteVinted"));
-    async function addParam(kind){
+    // + ajouter dans Paramètres (avec états)
+    document.body.addEventListener("click", async (e)=>{
+      if(!e.target.matches(".add-link")) return;
+      const btn = e.target;
+      const kind= btn.getAttribute("data-kind");
+
       const labels={fournisseur:"Nouveau fournisseur", categorie:"Nouvelle catégorie", compteVinted:"Nouveau compte Vinted"};
-      const val=prompt(labels[kind]+" :");
+      const val = prompt(labels[kind]+" :");
       if(!val) return;
-      const params = new URLSearchParams({action:"addParam", kind, value:val});
+
+      const statusEl = document.getElementById("status-"+kind) || document.getElementById("status-abo-categorie");
       try{
-        const r=await fetch(ENDPOINT,{method:"POST",headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body:params.toString()});
-        const json=await r.json();
-        if(!json.ok) throw new Error(json.error||"Ajout impossible");
+        btn.disabled=true; btn.textContent="Ajout en cours…"; if(statusEl) statusEl.textContent="";
+        const params = new URLSearchParams();
+        params.append("action","addParam");
+        params.append("kind", kind);
+        params.append("value", val);
+
+        const r = await fetch(ENDPOINT, {
+          method:"POST",
+          headers:{ "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8" },
+          body: params.toString()
+        });
+        const json = await r.json();
+        if(!json.ok) throw new Error(json.error||"Erreur ajout");
+
+        // rafraîchir les listes concernées
         const d=json.data||{};
-        if(kind==="fournisseur") fillSelect($("fournisseur"), d.fournisseurs);
-        if(kind==="categorie"){ fillSelect($("categorie"), d.categories); fillSelect($("abo-categorie"), d.categories); }
-        if(kind==="compteVinted") fillSelect($("compte-vinted"), d.comptesVinted);
-      }catch(e){ alert("Erreur: "+e.message); }
-    }
+        if(kind==='fournisseur') fillSelect($("fournisseur"), d.fournisseurs||[]);
+        if(kind==='categorie'){
+          fillSelect($("categorie"), d.categories||[]);
+          fillSelect($("abo-categorie"), d.categories||[]);
+        }
+        if(kind==='compteVinted') fillSelect($("compte-vinted"), d.comptesVinted||[]);
 
-    function hideMsgs(){ $("feedback").style.display="none"; $("error").style.display="none"; }
-    function showOk(t){ const m=$("feedback"); m.textContent=t; m.className="msg ok"; m.style.display="block"; }
-    function showErr(t){ const m=$("error"); m.textContent=t; m.style.display="block"; }
+        btn.textContent="Ajouté ✅";
+        if(statusEl) statusEl.textContent=""; // optionnel
+      }catch(err){
+        alert("Erreur: "+err.message);
+        btn.textContent="+ ajouter";
+      }finally{
+        setTimeout(()=>{ btn.disabled=false; btn.textContent="+ ajouter"; }, 1200);
+      }
+    });
 
-    function need(v){ return v!=null && String(v).trim()!==""; }
-
+    // Soumission principale
     $("submit").addEventListener("click", async ()=>{
-      hideMsgs();
-      const type=$("type").value;
-      const p={ type };
+      hideMsg();
+      const type=$("type").value; const p={ type };
+
+      // helpers
+      const need = v => v!=null && String(v).trim()!=="";
 
       if(type==="Achat stock"){
         if(!need($("montant-achat").value)) return showErr("Montant requis.");
         p.item=$("item").value; p.dateISO=$("date-achat").value; p.montant=$("montant-achat").value; p.fournisseur=$("fournisseur").value;
+
       } else if(type==="Frais annexes"){
         if(!need($("montant-frais").value)) return showErr("Montant requis.");
         p.fraisDesc=$("frais-desc").value; p.dateISO=$("date-frais").value; p.montant=$("montant-frais").value; p.categorie=$("categorie").value;
+
       } else if(type==="Vente/Cashout"){
         if(!need($("montant-vente").value)) return showErr("Montant requis.");
         p.dateISO=$("date-vente").value; p.montant=$("montant-vente").value; p.compteVinted=$("compte-vinted").value;
+
       } else if(type==="Abonnement (mensuel)"){
         if(!need($("abo-montant").value)) return showErr("Montant requis.");
-        p.aboNom=$("abo-nom").value; p.montant=$("abo-montant").value; p.aboJour=$("abo-jour").value; p.categorie=$("abo-categorie").value; p.aboActif=$("abo-actif").checked;
-      } else {
+        p.aboNom=$("abo-nom").value; p.montant=$("abo-montant").value; p.aboJour=$("abo-jour").value; p.categorie=$("abo-categorie").value;
+        p.aboActif = !!$("abo-actif").checked; // ✅ si décoché => false -> "Non" côté Apps Script
+
+      } else { // Paiement
         if(!need($("montant-paiement").value)) return showErr("Montant requis.");
         p.dateISO=$("date-paiement").value; p.montant=$("montant-paiement").value;
       }
 
-      $("submit").disabled=true; $("submit").classList.add("loading"); $("submit").textContent="Ajout en cours…";
       try{
-        const params=new URLSearchParams(); Object.entries(p).forEach(([k,v])=>params.append(k,String(v)));
-        const r=await fetch(ENDPOINT,{method:"POST",headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body:params.toString()});
-        const json=await r.json().catch(()=>({}));
-        if(!r.ok||json.ok===false) throw new Error(json.error||("HTTP "+r.status));
+        $("submit").disabled=true; $("submit").textContent="⏳ Ajout en cours…";
+        const params = new URLSearchParams(); Object.entries(p).forEach(([k,v])=>params.append(k,String(v)));
+        const r = await fetch(ENDPOINT, {
+          method:"POST",
+          headers:{ "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8" },
+          body: params.toString()
+        });
+        const json = await r.json().catch(()=>({}));
+        if(!r.ok || json.ok===false) throw new Error(json.error||("HTTP "+r.status));
+
         showOk("Ajouté ✅");
+        // clear minimal
         if(type==="Achat stock"){ $("item").value=""; $("montant-achat").value=""; }
         else if(type==="Frais annexes"){ $("frais-desc").value=""; $("montant-frais").value=""; }
         else if(type==="Vente/Cashout"){ $("montant-vente").value=""; }
-        else if(type==="Abonnement (mensuel)"){ $("abo-nom").value=""; $("abo-montant").value=""; $("abo-actif").checked=true; }
+        else if(type==="Abonnement (mensuel)"){ $("abo-nom").value=""; $("abo-montant").value=""; }
         else { $("montant-paiement").value=""; }
+
       }catch(e){
         showErr("Erreur: "+e.message);
       }finally{
-        $("submit").disabled=false; $("submit").classList.remove("loading"); $("submit").textContent="+ Ajouter";
+        $("submit").disabled=false; $("submit").textContent="➕ Ajouter";
       }
     });
 
-    switchType();
+    function showOk(t){ const m=$("feedback"); m.textContent=t; m.className="msg ok"; m.style.display="block"; $("error").style.display="none"; }
+    function showErr(t){ const m=$("error"); m.textContent=t; m.className="msg err"; m.style.display="block"; $("feedback").style.display="none"; }
+
+    // Init
+    switchTypeUI();
     loadLists();
   </script>
 </body>
