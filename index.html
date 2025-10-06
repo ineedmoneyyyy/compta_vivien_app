@@ -47,12 +47,12 @@
     .spinner{ width:18px; height:18px; border-radius:50%; border:3px solid rgba(255,255,255,.35); border-top-color:#fff; animation:spin .8s linear infinite; }
     @keyframes spin{ to{ transform:rotate(360deg); } }
     .bloc{ display:none; } .bloc.active{ display:block; }
-    .switchline{ display:flex; align-items:center; gap:8px; margin-top:6px; position:relative; }
-    /* ✅ assure que la checkbox reçoit bien le clic */
+    .switchline{ display:flex; align-items:center; gap:8px; margin-top:6px; }
+    /* ✅ s’assure que la case reçoit les taps */
     .switchline input[type="checkbox"]{
-      width:22px; height:22px; transform:scale(.95);
-      pointer-events:auto; position:relative; z-index:1;
+      width:22px; height:22px; pointer-events:auto; position:relative; z-index:1; cursor:pointer;
     }
+    .switchline label{ margin:0; font-weight:600; cursor:pointer; }
     .link-add{ background:none; border:none; color:#6f57d3; text-decoration:underline; padding:0; cursor:pointer; }
     @media (max-width:360px){ .row{ flex-direction:column; } }
   </style>
@@ -162,8 +162,9 @@
           <span id="st-categorie-abo" class="hint"></span>
         </div>
         <div class="switchline">
-          <input id="ab-actif" type="checkbox" checked>
-          <label for="ab-actif" style="margin:0;font-weight:600;cursor:pointer;">Actif</label>
+          <!-- ✅ cochée par défaut, cliquable -->
+          <input id="ab-actif" type="checkbox" checked />
+          <label for="ab-actif">Actif</label>
         </div>
       </div>
 
@@ -208,7 +209,7 @@
     function todayISO(){ const t=new Date(); const y=t.getFullYear(), m=String(t.getMonth()+1).padStart(2,"0"), d=String(t.getDate()).padStart(2,"0"); return `${y}-${m}-${d}`; }
     ["#a-date","#f-date","#v-date","#p-date"].forEach(sel=>{ const el=$(sel); if(el) el.value=todayISO(); });
 
-    // ===== LISTES : fix anti-cache + erreurs visibles
+    // listes
     function fillSelect(sel, arr){
       if(!sel) return;
       const list = Array.isArray(arr) ? arr : [];
@@ -217,11 +218,9 @@
       sel.innerHTML = ""; sel.appendChild(frag);
     }
     async function loadLists(){
-      const msg = $("#form-msg");
       try{
-        const url = ENDPOINT + "?api=lists&_=" + Date.now(); // anti-cache
-        const r = await fetch(url, { cache:"no-store", credentials:"omit" });
-        if(!r.ok) throw new Error("HTTP "+r.status);
+        const url = ENDPOINT + "?api=lists&_=" + Date.now();
+        const r = await fetch(url, { cache:"no-store" });
         const json = await r.json();
         const d = (json && json.data) ? json.data : {};
         fillSelect($("#a-fs"), d.fournisseurs);
@@ -229,9 +228,9 @@
         fillSelect($("#v-compte"), d.comptesVinted);
         fillSelect($("#ab-cat"), d.categories);
       }catch(e){
-        msg.className = "msg err";
-        msg.textContent = "Erreur chargement des listes. Réessaie : tirer pour rafraîchir.";
         console.error("Listes:", e);
+        $("#form-msg").className="msg err";
+        $("#form-msg").textContent="Erreur chargement des listes.";
       }
     }
     loadLists();
@@ -259,7 +258,7 @@
       }
     });
 
-    // validation
+    // validation (obligations champs)
     function need(v){ return v!=null && String(v).trim()!==""; }
     function validate(){
       const t=$("#type").value;
@@ -305,7 +304,8 @@
         p.dateISO=$("#v-date").value; p.montant=$("#v-montant").value.replace(",","."); p.compteVinted=$("#v-compte").value;
       } else if(t==="Abonnement (mensuel)"){
         p.aboNom=$("#ab-nom").value; p.montant=$("#ab-montant").value.replace(",",".");
-        p.aboJour=$("#ab-jour").value; p.categorie=$("#ab-cat").value; p.aboActif=$("#ab-actif").checked;
+        p.aboJour=$("#ab-jour").value; p.categorie=$("#ab-cat").value;
+        p.aboActif=$("#ab-actif").checked;   /* ✅ état réel envoyé */
       } else {
         p.dateISO=$("#p-date").value; p.montant=$("#p-montant").value.replace(",",".");
       }
@@ -325,10 +325,8 @@
 
     // init
     switchTypeUI();
-
-    // ✅ sécurité : s’il y avait un style qui empêchait la coche d’être cliquée
-    // on s'assure que l’état visuel correspond bien à l’état réel
-    $("#ab-actif").addEventListener("click", (ev)=>{ ev.currentTarget.checked = !ev.currentTarget.checked ? false : true; });
+    // ✅ s’assure qu’au chargement elle est bien cochée
+    document.getElementById("ab-actif").checked = true;
   </script>
 </body>
 </html>
