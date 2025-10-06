@@ -11,49 +11,53 @@
     :root{
       --primary:#6f57d3; --bg:#f2f2f7; --fg:#111; --border:#d9d9de;
       --pad:18px; --maxw:640px; --radius:16px; --accent:#267dff;
+      --gap:16px;
     }
     html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.35;-webkit-text-size-adjust:100%}
+    body{margin:0;background:var(--bg);color:var(--fg);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      line-height:1.35;-webkit-text-size-adjust:100%}
     .screen{min-height:100vh;display:flex;flex-direction:column}
 
-    /* HEADER GIF — plus petit et non rogné */
-    .header{background:var(--bg)}
+    /* HEADER GIF — très compact et toujours entier */
     .header .wrap{max-width:var(--maxw);margin:0 auto;padding:8px var(--pad) 0}
-    .hero{
-      width:100%; height:140px; border-radius:14px; overflow:hidden;
-      background:#e9e9ef; display:flex; align-items:center; justify-content:center;
-      padding:0;           /* pas de padding qui casse l’alignement */
-    }
-    @media (min-width:480px){ .hero{ height:180px; } }
-    .hero img{width:100%; height:100%; object-fit:contain; display:block} /* contain = gif entier visible */
+    .hero{width:100%;height:96px;border-radius:12px;overflow:hidden;background:#e9e9ef;
+      display:flex;align-items:center;justify-content:center}
+    @media (min-width:420px){ .hero{height:120px} }
+    @media (min-width:640px){ .hero{height:160px} }
+    .hero img{width:100%;height:100%;object-fit:contain;display:block}
 
     .wrap{max-width:var(--maxw);margin:0 auto;padding:12px var(--pad)}
     label.title{display:block;font-weight:800;font-size:18px;margin:14px 0 8px}
-    .row{display:flex;gap:14px}
-    .row .field{flex:1;min-width:0}
-    input,select{width:100%;box-sizing:border-box;border:1px solid var(--border);background:#fff;border-radius:14px;padding:14px 16px;font-size:17px;min-height:52px;outline:none}
+    .row{display:flex;gap:var(--gap);margin-bottom:8px}            /* espace entre colonnes */
+    .field{flex:1;min-width:0}
+    input,select{width:100%;box-sizing:border-box;border:1px solid var(--border);background:#fff;border-radius:14px;
+      padding:14px 16px;font-size:17px;min-height:52px;outline:none}
     input:focus,select:focus{border-color:#c7b8ff;box-shadow:0 0 0 3px rgba(111,87,211,.15)}
     .hint{font-size:13px;color:#666;margin:6px 2px 0}
 
-    /* flèche bleue */
+    /* flèche bleue sur tous les selects */
     .select-wrap{position:relative}
     .select-wrap select{appearance:none;-webkit-appearance:none;padding-right:44px}
     .select-wrap::after{
       content:""; position:absolute; right:12px; top:50%; transform:translateY(-50%);
-      width:22px; height:22px;
+      width:22px;height:22px;
       background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='%23267dff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='7 10 12 15 17 10'/></svg>") center/22px 22px no-repeat;
       pointer-events:none;
     }
 
-    /* Actif plus petit */
-    .toggle{display:flex;align-items:center;gap:8px;margin-top:8px;user-select:none;padding:6px 2px}
-    .toggle input{width:18px;height:18px}      /* était 22px */
+    /* Actif encore plus petit */
+    .toggle{display:flex;align-items:center;gap:8px;margin-top:6px;user-select:none}
+    .toggle input{width:14px;height:14px}      /* ← réduit */
 
-    .actions{position:sticky;bottom:0;background:linear-gradient(180deg,rgba(242,242,247,0) 0%,var(--bg) 50%);padding:12px 0 calc(env(safe-area-inset-bottom,0) + 12px)}
+    .actions{position:sticky;bottom:0;background:linear-gradient(180deg,rgba(242,242,247,0) 0%,var(--bg) 50%);
+      padding:12px 0 calc(env(safe-area-inset-bottom,0) + 12px)}
     .actions .wrap{padding-top:0}
-    #submit{width:100%;height:60px;border:none;border-radius:18px;background:var(--primary);color:#fff;font-size:20px;font-weight:800;letter-spacing:.2px;box-shadow:0 10px 24px rgba(111,87,211,.25);cursor:pointer;touch-action:manipulation}
+    #submit{width:100%;height:60px;border:none;border-radius:18px;background:var(--primary);color:#fff;
+      font-size:20px;font-weight:800;letter-spacing:.2px;box-shadow:0 10px 24px rgba(111,87,211,.25);cursor:pointer;touch-action:manipulation}
     #submit:disabled{opacity:.6;cursor:default}
-    .spin{display:inline-block;width:18px;height:18px;border:3px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;margin-right:10px;vertical-align:-3px;animation:rt .8s linear infinite}
+    .spin{display:inline-block;width:18px;height:18px;border:3px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;
+      margin-right:10px;vertical-align:-3px;animation:rt .8s linear infinite}
     @keyframes rt{to{transform:rotate(360deg)}}
     .msg{font-size:15px;color:#0a8a0a;margin-top:8px}
     .err{font-size:15px;color:#c62828;margin-top:8px}
@@ -63,9 +67,7 @@
   <div class="screen">
     <header class="header">
       <div class="wrap">
-        <div class="hero">
-          <img src="go.gif" alt="Header">
-        </div>
+        <div class="hero"><img src="go.gif" alt="Header"></div>
       </div>
     </header>
 
@@ -156,10 +158,7 @@
         </div>
         <label class="title">Catégorie</label>
         <div class="select-wrap"><select id="abo-categorie"></select></div>
-        <label class="toggle">
-          <input id="abo-actif" type="checkbox" checked>
-          <span>Actif (Oui)</span>
-        </label>
+        <label class="toggle"><input id="abo-actif" type="checkbox" checked><span>Actif (Oui)</span></label>
       </div>
 
       <!-- PAIEMENT -->
@@ -181,61 +180,48 @@
       <div id="error" class="err" style="display:none"></div>
     </main>
 
-    <div class="actions">
-      <div class="wrap"><button id="submit">➕ Ajouter</button></div>
-    </div>
+    <div class="actions"><div class="wrap"><button id="submit">➕ Ajouter</button></div></div>
   </div>
 
   <script>
     const ENDPOINT="https://script.google.com/macros/s/AKfycbzF3P3AE1hcHuyFRZLnBS9eKtu0nz1jVyLxv8Ej0CbA78G-_ssXd2e-I9zgk58qqke46w/exec";
-
     const $=id=>document.getElementById(id);
-    const blocs={
-      "Achat stock":"bloc-achat","Frais annexes":"bloc-frais","Vente/Cashout":"bloc-vente","Abonnement (mensuel)":"bloc-abo","Paiement":"bloc-paiement"
-    };
-    function switchTypeUI(){ const t=$("type").value; Object.values(blocs).forEach(id=>document.getElementById(id).style.display="none"); document.getElementById(blocs[t]).style.display="block"; hideMsg(); }
+    const blocs={"Achat stock":"bloc-achat","Frais annexes":"bloc-frais","Vente/Cashout":"bloc-vente","Abonnement (mensuel)":"bloc-abo","Paiement":"bloc-paiement"};
+    function switchTypeUI(){const t=$("type").value;Object.values(blocs).forEach(id=>document.getElementById(id).style.display="none");document.getElementById(blocs[t]).style.display="block";hideMsg();}
     $("type").addEventListener("change",switchTypeUI);
 
-    function setToday(ids){ const t=new Date(),y=t.getFullYear(),m=String(t.getMonth()+1).padStart(2,"0"),d=String(t.getDate()).padStart(2,"0"); ids.forEach(id=>{const el=$(id); if(el) el.value=`${y}-${m}-${d}`;}); }
-    function showMsg(t){const el=$("feedback"); el.textContent=t; el.style.display="block"; $("error").style.display="none";}
-    function showErr(t){const el=$("error"); el.textContent=t; el.style.display="block"; $("feedback").style.display="none";}
+    function setToday(ids){const t=new Date(),y=t.getFullYear(),m=String(t.getMonth()+1).padStart(2,"0"),d=String(t.getDate()).padStart(2,"0");ids.forEach(id=>{const el=$(id);if(el)el.value=`${y}-${m}-${d}`;});}
+    function showMsg(t){const el=$("feedback");el.textContent=t;el.style.display="block";$("error").style.display="none";}
+    function showErr(t){const el=$("error");el.textContent=t;el.style.display="block";$("feedback").style.display="none";}
     function hideMsg(){ $("feedback").style.display="none"; $("error").style.display="none"; }
 
-    function fill(id,arr){ const sel=$(id); sel.innerHTML=""; (arr||[]).forEach(v=>{const o=document.createElement("option"); o.value=o.textContent=v; sel.appendChild(o);}); }
-    async function loadLists(){ try{ const r=await fetch(ENDPOINT+"?api=lists"); const js=await r.json(); const d=js.data||{}; fill("fournisseur",d.fournisseurs); fill("categorie",d.categories); fill("compte-vinted",d.comptesVinted); fill("abo-categorie",d.categories);}catch(e){showErr("Erreur listes : "+e.message);} }
-
-    async function addParam(kind,label){ const val=prompt(label+" :"); if(!val) return; try{ const params=new URLSearchParams({action:"addParam",kind,value:val}); const r=await fetch(ENDPOINT,{method:"POST",headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body:params.toString()}); const js=await r.json(); if(!js.ok) throw new Error(js.error||"Erreur ajout"); const d=js.data||{}; if(kind==="fournisseur") fill("fournisseur",d.fournisseurs); if(kind==="categorie"){ fill("categorie",d.categories); fill("abo-categorie",d.categories);} if(kind==="compteVinted") fill("compte-vinted",d.comptesVinted);}catch(e){ alert("Erreur : "+e.message);} }
-    $("add-fs").addEventListener("click",()=>addParam("fournisseur","Nouveau fournisseur"));
-    $("add-cat").addEventListener("click",()=>addParam("categorie","Nouvelle catégorie"));
-    $("add-vinted").addEventListener("click",()=>addParam("compteVinted","Nouveau compte Vinted"));
+    function fill(id,arr){const sel=$(id);sel.innerHTML="";(arr||[]).forEach(v=>{const o=document.createElement("option");o.value=o.textContent=v;sel.appendChild(o);});}
+    async function loadLists(){try{const r=await fetch(ENDPOINT+"?api=lists");const js=await r.json();const d=js.data||{};fill("fournisseur",d.fournisseurs);fill("categorie",d.categories);fill("compte-vinted",d.comptesVinted);fill("abo-categorie",d.categories);}catch(e){showErr("Erreur listes : "+e.message);}}
+    async function addParam(kind,label){const val=prompt(label+" :");if(!val)return;try{const params=new URLSearchParams({action:"addParam",kind,value:val});const r=await fetch(ENDPOINT,{method:"POST",headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body:params.toString()});const js=await r.json();if(!js.ok)throw new Error(js.error||"Erreur ajout");const d=js.data||{};if(kind==="fournisseur")fill("fournisseur",d.fournisseurs);if(kind==="categorie"){fill("categorie",d.categories);fill("abo-categorie",d.categories);}if(kind==="compteVinted")fill("compte-vinted",d.comptesVinted);}catch(e){alert("Erreur : "+e.message);}}
+    document.getElementById("add-fs").addEventListener("click",()=>addParam("fournisseur","Nouveau fournisseur"));
+    document.getElementById("add-cat").addEventListener("click",()=>addParam("categorie","Nouvelle catégorie"));
+    document.getElementById("add-vinted").addEventListener("click",()=>addParam("compteVinted","Nouveau compte Vinted"));
 
     function normMoney(v){ return String(v||"").replace(",",".").trim(); }
 
     $("submit").addEventListener("click",async()=>{
       hideMsg();
-      const btn=$("submit"), type=$("type").value, p={type};
-
+      const btn=$("submit"),type=$("type").value,p={type};
       try{
-        if(type==="Achat stock"){
-          if(!$("montant-achat").value) throw new Error("Montant requis (achat).");
-          p.item=$("item").value; p.dateISO=$("date-achat").value; p.montant=normMoney($("montant-achat").value); p.fournisseur=$("fournisseur").value;
-        }else if(type==="Frais annexes"){
-          if(!$("montant-frais").value) throw new Error("Montant requis (frais).");
-          p.fraisDesc=$("frais-desc").value; p.dateISO=$("date-frais").value; p.montant=normMoney($("montant-frais").value); p.categorie=$("categorie").value;
-        }else if(type==="Vente/Cashout"){
-          if(!$("montant-vente").value) throw new Error("Montant requis (vente).");
-          p.dateISO=$("date-vente").value; p.montant=normMoney($("montant-vente").value); p.compteVinted=$("compte-vinted").value;
-        }else if(type==="Abonnement (mensuel)"){
-          if(!$("abo-montant").value) throw new Error("Montant requis (abonnement).");
-          p.aboNom=$("abo-nom").value; p.montant=normMoney($("abo-montant").value); p.aboJour=$("abo-jour").value; p.categorie=$("abo-categorie").value; p.aboActif=$("abo-actif").checked;
-        }else{
-          if(!$("montant-paiement").value) throw new Error("Montant requis (paiement).");
-          p.dateISO=$("date-paiement").value; p.montant=normMoney($("montant-paiement").value);
+        if(type==="Achat stock"){ if(!$("montant-achat").value) throw new Error("Montant requis (achat).");
+          p.item=$("item").value;p.dateISO=$("date-achat").value;p.montant=normMoney($("montant-achat").value);p.fournisseur=$("fournisseur").value;
+        }else if(type==="Frais annexes"){ if(!$("montant-frais").value) throw new Error("Montant requis (frais).");
+          p.fraisDesc=$("frais-desc").value;p.dateISO=$("date-frais").value;p.montant=normMoney($("montant-frais").value);p.categorie=$("categorie").value;
+        }else if(type==="Vente/Cashout"){ if(!$("montant-vente").value) throw new Error("Montant requis (vente).");
+          p.dateISO=$("date-vente").value;p.montant=normMoney($("montant-vente").value);p.compteVinted=$("compte-vinted").value;
+        }else if(type==="Abonnement (mensuel)"){ if(!$("abo-montant").value) throw new Error("Montant requis (abonnement).");
+          p.aboNom=$("abo-nom").value;p.montant=normMoney($("abo-montant").value);p.aboJour=$("abo-jour").value;p.categorie=$("abo-categorie").value;p.aboActif=$("abo-actif").checked;
+        }else{ if(!$("montant-paiement").value) throw new Error("Montant requis (paiement).");
+          p.dateISO=$("date-paiement").value;p.montant=normMoney($("montant-paiement").value);
         }
       }catch(e){ return showErr(e.message); }
 
       btn.disabled=true; const original=btn.innerHTML; btn.innerHTML=`<span class="spin"></span>Ajout en cours…`;
-
       try{
         const params=new URLSearchParams(); Object.entries(p).forEach(([k,v])=>params.append(k,String(v)));
         const r=await fetch(ENDPOINT,{method:"POST",headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body:params.toString()});
@@ -246,16 +232,14 @@
         if(type==="Vente/Cashout"){ $("montant-vente").value=""; }
         if(type==="Abonnement (mensuel)"){ $("abo-montant").value=""; $("abo-nom").value=""; }
         if(type==="Paiement"){ $("montant-paiement").value=""; }
-      }catch(e){
-        btn.innerHTML=original; showErr("Erreur : "+e.message); btn.disabled=false; return;
-      }
+      }catch(e){ btn.innerHTML=original; showErr("Erreur : "+e.message); btn.disabled=false; return; }
       setTimeout(()=>{ btn.innerHTML=original; btn.disabled=false; },1200);
     });
 
     (function init(){
       setToday(["date-achat","date-frais","date-vente","date-paiement"]);
       loadLists(); switchTypeUI();
-      $("abo-actif").checked=true; // par défaut activé
+      $("abo-actif").checked=true; // par défaut
     })();
   </script>
 </body>
