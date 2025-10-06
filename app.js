@@ -1,5 +1,5 @@
 // ⚠️ Mets ici l’URL "Version déployée" de ton Apps Script Web App (voir étapes)
-const ENDPOINT = https://script.google.com/macros/s/AKfycbwLVMlCp-qzqVdmrTkqacDHlQURYv7_rE7O6k5UZyoZ1fvoSrowdAsLkK5bdfAiNIb5xQ/exec;
+const ENDPOINT = https://script.google.com/macros/s/AKfycbzF3P3AE1hcHuyFRZLnBS9eKtu0nz1jVyLxv8Ej0CbA78G-_ssXd2e-I9zgk58qqke46w/exec;
 
 const $ = id => document.getElementById(id);
 const blocs = {
