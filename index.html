@@ -17,22 +17,28 @@
       margin:0; padding:0; background:var(--bg); color:var(--fg);
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
       font-size:18px; line-height:1.35; -webkit-text-size-adjust:100%;
+      overflow-x:hidden;
     }
     .screen{min-height:100vh; display:flex; flex-direction:column;}
     .wrap{ width:100%; max-width:var(--maxw); margin:0 auto; box-sizing:border-box; padding:0 var(--pad); }
 
-    /* Header GIF */
-    .header{ padding:14px var(--pad) 4px; }
-    .header .gif-box{
-      width:100%; height:80px; border-radius:20px; overflow:hidden;
+    /* Header GIF (bandeau fin, arrondi) */
+    .header{ padding:14px var(--pad) 6px; }
+    .gif-box{
+      width:100%; height:72px; border-radius:20px; overflow:hidden;
       background:#111; display:flex; align-items:center; justify-content:center;
     }
-    .header .gif-box img{ height:100%; width:auto; display:block; }
+    .gif-box img{ height:100%; width:auto; display:block; }
 
     label{ display:block; font-weight:700; margin:14px 0 8px; }
+
+    /* Champs */
     input, select{
       width:100%; box-sizing:border-box; background:#fff; border:1px solid var(--border); border-radius:12px;
       padding:12px 14px; font-size:18px; min-height:50px; outline:none;
+    }
+    /* Flèche bleue uniquement pour les <select> */
+    select{
       appearance:none; -webkit-appearance:none;
       background-image:
         linear-gradient(45deg, transparent 50%, #6fa8ff 50%),
@@ -43,10 +49,9 @@
       background-size:6px 6px, 6px 6px;
       background-repeat:no-repeat;
     }
-    input[type="date"]{ background-image:none; }
 
     .row{ display:flex; gap:14px; align-items:flex-start; }
-    .row .field{ flex:1; min-width:0; }
+    .field{ flex:1; min-width:0; }
 
     .hint{ font-size:14px; color:#666; margin-top:6px; }
 
@@ -63,9 +68,9 @@
 
     .link{ background:none; border:none; color:#6f57d3; text-decoration:underline; padding:0; cursor:pointer; font-size:16px; }
 
-    /* toggle Actif */
+    /* Toggle Actif : vrai checkbox */
     .toggle{ display:flex; align-items:center; gap:12px; margin-top:8px; }
-    .toggle input{ width:44px; height:26px; }
+    .toggle input[type="checkbox"]{ width:44px; height:26px; }
   </style>
 </head>
 <body>
@@ -198,7 +203,7 @@
   </div>
 
   <script>
-    // 🔗 Apps Script Web App (ton URL)
+    // 🔗 Apps Script Web App
     const ENDPOINT = "https://script.google.com/macros/s/AKfycbzF3P3AE1hcHuyFRZLnBS9eKtu0nz1jVyLxv8Ej0CbA78G-_ssXd2e-I9zgk58qqke46w/exec";
 
     const $ = id => document.getElementById(id);
@@ -214,8 +219,7 @@
       const t = $("type").value;
       Object.values(blocs).forEach(id => document.getElementById(id).style.display = "none");
       document.getElementById(blocs[t]).style.display = "block";
-      $("#msg").className="msg";
-      $("#msg").textContent="";
+      $("#msg").className="msg"; $("#msg").textContent="";
     }
     $("type").addEventListener("change", showBloc);
 
@@ -241,15 +245,14 @@
     }
     loadLists(); showBloc();
 
-    // + ajouter dans Paramètres (fournisseur / catégorie / compte Vinted)
+    // + ajouter (Paramètres)
     document.body.addEventListener("click", async (e)=>{
       if(!e.target.matches(".link")) return;
       const kind = e.target.getAttribute("data-kind");
       const labels = {fournisseur:"Nouveau fournisseur", categorie:"Nouvelle catégorie", compteVinted:"Nouveau compte Vinted"};
       const val = prompt(labels[kind]+" :");
       if(!val) return;
-      const btn = e.target;
-      const original = btn.textContent;
+      const btn = e.target, original = btn.textContent;
       try{
         btn.textContent = "Ajout en cours…";
         const params = new URLSearchParams();
@@ -286,7 +289,7 @@
         return need($("#date-vente").value) && need($("#montant-vente").value) && need($("#compte-vinted").value);
       } else if(type==="Abonnement (mensuel)"){
         return need($("#abo-nom").value) && need($("#abo-montant").value) && need($("#abo-jour").value) && need($("#abo-categorie").value);
-      } else { // Paiement
+      } else {
         return need($("#date-paiement").value) && need($("#montant-paiement").value);
       }
     }
@@ -339,7 +342,7 @@
         p.append("montant", $("#abo-montant").value);
         p.append("aboJour", $("#abo-jour").value);
         p.append("categorie", $("#abo-categorie").value);
-        // ✅ envoyer une valeur claire "true"/"false"
+        // ✅ Valeur claire pour Apps Script
         p.append("aboActif", $("#abo-actif").checked ? "true" : "false");
       } else {
         p.append("dateISO", $("#date-paiement").value);
