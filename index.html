@@ -7,79 +7,54 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="apple-touch-icon" href="logo1.png" />
-
   <style>
     :root{
       --primary:#6f57d3; --bg:#f2f2f7; --fg:#111; --border:#d9d9de;
       --r:14px; --pad:18px; --maxw:420px;
     }
-
     html, body {
-      margin: 0; padding: 0; height: 100%; width: 100%;
-      overflow-x: hidden;           /* pas de scroll horizontal */
-      background: var(--bg); color: var(--fg);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      -webkit-text-size-adjust: 100%;
-      overscroll-behavior: none;
+      margin:0; padding:0; height:100%; width:100%;
+      overflow-x:hidden; background:var(--bg); color:var(--fg);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      -webkit-text-size-adjust:100%; overscroll-behavior:none;
     }
-
-    .wrap {
-      width: 100%; max-width: var(--maxw);
-      margin: 0 auto; padding: 0 var(--pad) 24px; box-sizing: border-box;
-      overflow: hidden;
-    }
-
-    /* GIF ENTIER + ARRONDI */
-    .hero {
-      display:block; width:100%; height:auto; max-width:100%;
-      border-radius:18px; margin:14px auto 10px; background:transparent; object-fit:contain;
-    }
-
-    label {display:block; font-size:16px; font-weight:800; margin:14px 0 8px;}
-    input, select {
+    .wrap{ width:100%; max-width:var(--maxw); margin:0 auto; padding:0 var(--pad) 24px; box-sizing:border-box; overflow:hidden; }
+    .hero{ display:block; width:100%; height:auto; max-width:100%; border-radius:18px; margin:14px auto 10px; object-fit:contain; }
+    label{ display:block; font-size:16px; font-weight:800; margin:14px 0 8px; }
+    input,select{
       width:100%; box-sizing:border-box; background:#fff; border:1px solid var(--border);
       border-radius:var(--r); padding:14px 16px; font-size:16px; min-height:48px; outline:none;
       -webkit-appearance:none; appearance:none;
     }
-    input:focus,select:focus { border-color:#c7b8ff; box-shadow:0 0 0 3px rgba(111,87,211,.15); }
-
-    .row {display:flex; gap:14px; margin: 0 0 2px;}
-    .row .field {flex:1; min-width:0; display:flex; flex-direction:column;}
-
-    .select-wrap {position:relative;}
-    .select-wrap::after {
-      content:""; position:absolute; right:14px; top:50%; width:14px; height:14px;
-      transform:translateY(-50%); pointer-events:none;
-      background:no-repeat center/contain url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
+    input:focus,select:focus{ border-color:#c7b8ff; box-shadow:0 0 0 3px rgba(111,87,211,.15); }
+    .row{ display:flex; gap:14px; margin:0 0 2px; }
+    .row .field{ flex:1; min-width:0; display:flex; flex-direction:column; }
+    .select-wrap{ position:relative; }
+    .select-wrap::after{
+      content:""; position:absolute; right:14px; top:50%; width:14px; height:14px; transform:translateY(-50%);
+      pointer-events:none; background:no-repeat center/contain url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
     }
-
-    .hint {font-size:13px; color:#666; margin-top:6px;}
-    .msg {font-size:14px; margin-top:8px;}
-    .msg.err {color:#c62828;}
-    .msg.ok  {color:#0a8a0a;}
-
-    .actions {padding:14px 0 calc(env(safe-area-inset-bottom,0) + 14px);}
-    #submit {
+    .hint{ font-size:13px; color:#666; margin-top:6px; }
+    .msg{ font-size:14px; margin-top:8px; }
+    .msg.err{ color:#c62828; } .msg.ok{ color:#0a8a0a; }
+    .actions{ padding:14px 0 calc(env(safe-area-inset-bottom,0) + 14px); }
+    #submit{
       width:100%; height:60px; border:none; border-radius:16px; background:var(--primary); color:#fff;
       font-size:20px; font-weight:800; letter-spacing:.2px; box-shadow:0 10px 24px rgba(111,87,211,.25);
       display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer;
     }
-    #submit:disabled {opacity:.6; cursor:default;}
-    .spinner {
-      width:18px; height:18px; border-radius:50%;
-      border:3px solid rgba(255,255,255,.35); border-top-color:#fff; animation:spin .8s linear infinite;
+    #submit:disabled{ opacity:.6; cursor:default; }
+    .spinner{ width:18px; height:18px; border-radius:50%; border:3px solid rgba(255,255,255,.35); border-top-color:#fff; animation:spin .8s linear infinite; }
+    @keyframes spin{ to{ transform:rotate(360deg); } }
+    .bloc{ display:none; } .bloc.active{ display:block; }
+    .switchline{ display:flex; align-items:center; gap:8px; margin-top:6px; position:relative; }
+    /* ✅ assure que la checkbox reçoit bien le clic */
+    .switchline input[type="checkbox"]{
+      width:22px; height:22px; transform:scale(.95);
+      pointer-events:auto; position:relative; z-index:1;
     }
-    @keyframes spin {to {transform:rotate(360deg);}}
-
-    .bloc {display:none;}
-    .bloc.active {display:block;}
-
-    .switchline {display:flex; align-items:center; gap:8px; margin-top:6px;}
-    .switchline input[type="checkbox"] {transform:scale(.9); width:22px; height:22px;}
-
-    .link-add {background:none; border:none; color:#6f57d3; text-decoration:underline; padding:0; cursor:pointer}
-
-    @media (max-width:360px){ .row{flex-direction:column;} }
+    .link-add{ background:none; border:none; color:#6f57d3; text-decoration:underline; padding:0; cursor:pointer; }
+    @media (max-width:360px){ .row{ flex-direction:column; } }
   </style>
 </head>
 <body>
@@ -87,7 +62,6 @@
     <img src="go.gif" alt="I Need Resell" class="hero" />
 
     <main>
-      <!-- Type -->
       <label>Type de transaction</label>
       <div class="select-wrap">
         <select id="type">
@@ -103,7 +77,6 @@
       <div id="b-achat" class="bloc active">
         <label>Item / Référence</label>
         <input id="a-item" placeholder="Ex: 100 Jeans Levi's 501">
-
         <div class="row">
           <div class="field">
             <label>Date</label>
@@ -115,7 +88,6 @@
             <div class="hint">Décimales : virgule ou point</div>
           </div>
         </div>
-
         <label>Fournisseur</label>
         <div class="select-wrap"><select id="a-fs"></select></div>
         <div class="hint">
@@ -128,7 +100,6 @@
       <div id="b-frais" class="bloc">
         <label>Description du frais</label>
         <input id="f-desc" placeholder="Ex: URSSAF, pochettes, etc.">
-
         <div class="row">
           <div class="field">
             <label>Date</label>
@@ -140,7 +111,6 @@
             <div class="hint">Décimales : virgule ou point</div>
           </div>
         </div>
-
         <label>Catégorie</label>
         <div class="select-wrap"><select id="f-cat"></select></div>
         <div class="hint">
@@ -162,7 +132,6 @@
             <div class="hint">Décimales : virgule ou point</div>
           </div>
         </div>
-
         <label>Compte Vinted</label>
         <div class="select-wrap"><select id="v-compte"></select></div>
         <div class="hint">
@@ -175,7 +144,6 @@
       <div id="b-abo" class="bloc">
         <label>Nom de l’abonnement</label>
         <input id="ab-nom" placeholder="Ex: ChatGPT Plus">
-
         <div class="row">
           <div class="field">
             <label>Montant (€)</label>
@@ -187,17 +155,15 @@
             <input id="ab-jour" type="number" min="1" max="31" value="5">
           </div>
         </div>
-
         <label>Catégorie</label>
         <div class="select-wrap"><select id="ab-cat"></select></div>
         <div class="hint">
           <button class="link-add" data-k="categorie" type="button">+ ajouter</button>
           <span id="st-categorie-abo" class="hint"></span>
         </div>
-
         <div class="switchline">
           <input id="ab-actif" type="checkbox" checked>
-          <label for="ab-actif" style="margin:0;font-weight:600;">Actif</label>
+          <label for="ab-actif" style="margin:0;font-weight:600;cursor:pointer;">Actif</label>
         </div>
       </div>
 
@@ -217,95 +183,86 @@
       </div>
 
       <div id="form-msg" class="msg"></div>
-
-      <div class="actions">
-        <button id="submit"><span>+ Ajouter</span></button>
-      </div>
+      <div class="actions"><button id="submit"><span>+ Ajouter</span></button></div>
     </main>
   </div>
 
   <script>
-    // ====== CONFIG ======
     const ENDPOINT = "https://script.google.com/macros/s/AKfycbzF3P3AE1hcHuyFRZLnBS9eKtu0nz1jVyLxv8Ej0CbA78G-_ssXd2e-I9zgk58qqke46w/exec";
     const $  = s => document.querySelector(s);
     const $$ = s => Array.from(document.querySelectorAll(s));
 
-    // ====== UI: switch blocs ======
+    // blocs
     const blocs = {
-      "Achat stock": "b-achat",
-      "Frais annexes": "b-frais",
-      "Vente/Cashout": "b-vente",
-      "Abonnement (mensuel)": "b-abo",
-      "Paiement": "b-paie"
+      "Achat stock":"b-achat","Frais annexes":"b-frais","Vente/Cashout":"b-vente","Abonnement (mensuel)":"b-abo","Paiement":"b-paie"
     };
     function switchTypeUI(){
       $$(".bloc").forEach(b=>b.classList.remove("active"));
       const id = blocs[$("#type").value];
       document.getElementById(id).classList.add("active");
-      $("#form-msg").textContent = ""; $("#form-msg").className = "msg";
+      $("#form-msg").textContent=""; $("#form-msg").className="msg";
     }
     $("#type").addEventListener("change", switchTypeUI);
 
-    // ====== Dates par défaut (YYYY-MM-DD pour <input type="date">) ======
-    function todayISO(){
-      const t = new Date();
-      const y = t.getFullYear(), m = String(t.getMonth()+1).padStart(2,"0"), d = String(t.getDate()).padStart(2,"0");
-      return `${y}-${m}-${d}`;
-    }
+    // dates défaut
+    function todayISO(){ const t=new Date(); const y=t.getFullYear(), m=String(t.getMonth()+1).padStart(2,"0"), d=String(t.getDate()).padStart(2,"0"); return `${y}-${m}-${d}`; }
     ["#a-date","#f-date","#v-date","#p-date"].forEach(sel=>{ const el=$(sel); if(el) el.value=todayISO(); });
 
-    // ====== Listes depuis Apps Script ======
-    function fillSelect(sel, arr){ sel.innerHTML=""; (arr||[]).forEach(v=>{ const o=document.createElement("option"); o.value=o.textContent=v; sel.appendChild(o); }); }
+    // ===== LISTES : fix anti-cache + erreurs visibles
+    function fillSelect(sel, arr){
+      if(!sel) return;
+      const list = Array.isArray(arr) ? arr : [];
+      const frag = document.createDocumentFragment();
+      list.forEach(v => { const o=document.createElement("option"); o.value=o.textContent=v; frag.appendChild(o); });
+      sel.innerHTML = ""; sel.appendChild(frag);
+    }
     async function loadLists(){
+      const msg = $("#form-msg");
       try{
-        const r = await fetch(ENDPOINT+"?api=lists");
+        const url = ENDPOINT + "?api=lists&_=" + Date.now(); // anti-cache
+        const r = await fetch(url, { cache:"no-store", credentials:"omit" });
+        if(!r.ok) throw new Error("HTTP "+r.status);
         const json = await r.json();
-        const d = json.data || {};
-        fillSelect($("#a-fs"), d.fournisseurs||[]);
-        fillSelect($("#f-cat"), d.categories||[]);
-        fillSelect($("#v-compte"), d.comptesVinted||[]);
-        fillSelect($("#ab-cat"), d.categories||[]);
+        const d = (json && json.data) ? json.data : {};
+        fillSelect($("#a-fs"), d.fournisseurs);
+        fillSelect($("#f-cat"), d.categories);
+        fillSelect($("#v-compte"), d.comptesVinted);
+        fillSelect($("#ab-cat"), d.categories);
       }catch(e){
-        $("#form-msg").className="msg err"; $("#form-msg").textContent="Erreur listes : "+e.message;
+        msg.className = "msg err";
+        msg.textContent = "Erreur chargement des listes. Réessaie : tirer pour rafraîchir.";
+        console.error("Listes:", e);
       }
     }
     loadLists();
 
-    // ====== + ajouter (Paramètres) avec statut ======
+    // + ajouter param
     document.body.addEventListener("click", async (e)=>{
       if(!e.target.classList.contains("link-add")) return;
-      const kind = e.target.getAttribute("data-k");          // fournisseur | categorie | compteVinted
+      const kind = e.target.getAttribute("data-k");
       const label = {fournisseur:"Nouveau fournisseur", categorie:"Nouvelle catégorie", compteVinted:"Nouveau compte Vinted"}[kind] || "Nouvelle valeur";
-      const val = prompt(label+" :");
-      if(!val) return;
+      const val = prompt(label+" :"); if(!val) return;
 
       const statusEl = document.getElementById("st-"+kind) || document.getElementById("st-"+kind+"-abo");
-      if(statusEl) { statusEl.textContent = "Ajout en cours…"; }
-
+      if(statusEl) statusEl.textContent = "Ajout en cours…";
       try{
-        const params = new URLSearchParams();
-        params.append("action","addParam"); params.append("kind", kind); params.append("value", val);
-        const r = await fetch(ENDPOINT,{method:"POST", body:params});
-        const json = await r.json();
-        if(!json.ok) throw new Error(json.error||"Erreur serveur");
-
+        const params = new URLSearchParams(); params.append("action","addParam"); params.append("kind",kind); params.append("value",val);
+        const r = await fetch(ENDPOINT, { method:"POST", body:params });
+        const json = await r.json(); if(!json.ok) throw new Error(json.error||"Erreur serveur");
         const d=json.data||{};
-        // rafraîchir listes
-        if(kind==="fournisseur") fillSelect($("#a-fs"), d.fournisseurs||[]);
-        if(kind==="categorie"){ fillSelect($("#f-cat"), d.categories||[]); fillSelect($("#ab-cat"), d.categories||[]); }
-        if(kind==="compteVinted") fillSelect($("#v-compte"), d.comptesVinted||[]);
-
-        if(statusEl){ statusEl.textContent = "Ajouté ✅"; setTimeout(()=>statusEl.textContent="",1500); }
+        if(kind==="fournisseur") fillSelect($("#a-fs"), d.fournisseurs);
+        if(kind==="categorie"){ fillSelect($("#f-cat"), d.categories); fillSelect($("#ab-cat"), d.categories); }
+        if(kind==="compteVinted") fillSelect($("#v-compte"), d.comptesVinted);
+        if(statusEl){ statusEl.textContent="Ajouté ✅"; setTimeout(()=>statusEl.textContent="",1500); }
       }catch(err){
-        if(statusEl){ statusEl.textContent = "Erreur : "+err.message; }
-        else { alert("Erreur : "+err.message); }
+        if(statusEl){ statusEl.textContent="Erreur : "+err.message; } else alert("Erreur : "+err.message);
       }
     });
 
-    // ====== Validation par type ======
+    // validation
     function need(v){ return v!=null && String(v).trim()!==""; }
     function validate(){
-      const t = $("#type").value;
+      const t=$("#type").value;
       if(t==="Achat stock"){
         if(!need($("#a-item").value)) return "Item requis";
         if(!need($("#a-date").value)) return "Date requise";
@@ -325,33 +282,25 @@
         if(!need($("#ab-montant").value)) return "Montant requis";
         if(!need($("#ab-jour").value)) return "Jour du mois requis";
         if(!need($("#ab-cat").value)) return "Catégorie requise";
-      } else { // Paiement
+      } else {
         if(!need($("#p-date").value)) return "Date requise";
         if(!need($("#p-montant").value)) return "Montant requis";
       }
-      return ""; // ok
+      return "";
     }
 
-    // ====== Soumission ======
+    // submit
     $("#submit").addEventListener("click", async (e)=>{
       e.preventDefault();
       $("#form-msg").textContent=""; $("#form-msg").className="msg";
-
       const err = validate();
-      if(err){
-        $("#form-msg").className="msg err"; $("#form-msg").textContent=err;
-        return;
-      }
+      if(err){ $("#form-msg").className="msg err"; $("#form-msg").textContent=err; return; }
 
-      const t = $("#type").value;
-      const p = { type: t };
-
+      const t=$("#type").value, p={ type:t };
       if(t==="Achat stock"){
-        p.item=$("#a-item").value; p.dateISO=$("#a-date").value; p.montant=$("#a-montant").value.replace(",",".");
-        p.fournisseur=$("#a-fs").value;
+        p.item=$("#a-item").value; p.dateISO=$("#a-date").value; p.montant=$("#a-montant").value.replace(",","."); p.fournisseur=$("#a-fs").value;
       } else if(t==="Frais annexes"){
-        p.fraisDesc=$("#f-desc").value; p.dateISO=$("#f-date").value; p.montant=$("#f-montant").value.replace(",",".");
-        p.categorie=$("#f-cat").value;
+        p.fraisDesc=$("#f-desc").value; p.dateISO=$("#f-date").value; p.montant=$("#f-montant").value.replace(",","."); p.categorie=$("#f-cat").value;
       } else if(t==="Vente/Cashout"){
         p.dateISO=$("#v-date").value; p.montant=$("#v-montant").value.replace(",","."); p.compteVinted=$("#v-compte").value;
       } else if(t==="Abonnement (mensuel)"){
@@ -361,35 +310,25 @@
         p.dateISO=$("#p-date").value; p.montant=$("#p-montant").value.replace(",",".");
       }
 
-      const btn = $("#submit");
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span><span>Ajout en cours…</span>';
-
+      const btn=$("#submit"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span><span>Ajout en cours…</span>';
       try{
-        const body = new URLSearchParams(Object.entries(p));
-        const r = await fetch(ENDPOINT, {method:"POST", body});
-        const json = await r.json().catch(()=>({}));
-        if(!r.ok || json.ok===false) throw new Error(json.error||("HTTP "+r.status));
-
-        btn.innerHTML = "✅ Ajouté";
-        $("#form-msg").className="msg ok"; $("#form-msg").textContent="Ajouté ✅";
-
-        // reset minimal
-        if(t==="Achat stock"){ $("#a-item").value=""; $("#a-montant").value=""; $("#a-item").focus();}
-        else if(t==="Frais annexes"){ $("#f-desc").value=""; $("#f-montant").value=""; $("#f-desc").focus();}
-        else if(t==="Vente/Cashout"){ $("#v-montant").value=""; }
-        else if(t==="Abonnement (mensuel)"){ $("#ab-nom").value=""; $("#ab-montant").value=""; }
-        else { $("#p-montant").value=""; }
+        const body=new URLSearchParams(Object.entries(p));
+        const r=await fetch(ENDPOINT,{method:"POST",body}); const json=await r.json().catch(()=>({}));
+        if(!r.ok||json.ok===false) throw new Error(json.error||("HTTP "+r.status));
+        btn.innerHTML="✅ Ajouté"; $("#form-msg").className="msg ok"; $("#form-msg").textContent="Ajouté ✅";
       }catch(e2){
-        btn.innerHTML = "❌ Erreur";
-        $("#form-msg").className="msg err"; $("#form-msg").textContent="Erreur : "+e2.message;
+        btn.innerHTML="❌ Erreur"; $("#form-msg").className="msg err"; $("#form-msg").textContent="Erreur : "+e2.message;
       }finally{
-        setTimeout(()=>{ btn.innerHTML = "+ Ajouter"; btn.disabled=false; },1500);
+        setTimeout(()=>{ btn.innerHTML="+ Ajouter"; btn.disabled=false; },1500);
       }
     });
 
-    // Initial
+    // init
     switchTypeUI();
+
+    // ✅ sécurité : s’il y avait un style qui empêchait la coche d’être cliquée
+    // on s'assure que l’état visuel correspond bien à l’état réel
+    $("#ab-actif").addEventListener("click", (ev)=>{ ev.currentTarget.checked = !ev.currentTarget.checked ? false : true; });
   </script>
 </body>
 </html>
