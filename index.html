@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>Saisie rapide</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
-  <!-- Icône pour "Ajouter à l’écran d’accueil" -->
   <link rel="apple-touch-icon" href="logo1.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -19,18 +18,18 @@
     .screen{ position:fixed; inset:0; display:flex; flex-direction:column;
       padding:calc(env(safe-area-inset-top,0)) env(safe-area-inset-right,0) 0 env(safe-area-inset-left,0); }
 
-    /* -------- HEADER : GIF seul -------- */
-    .header{ background:var(--bg); }
+    /* ===== HEADER : GIF ===== */
+    header{ background:var(--bg); }
     .wrap{ width:100%; max-width:var(--maxw); margin:0 auto; box-sizing:border-box; padding:0 var(--pad); }
-    .hero{
-      width:100%; height:auto; display:block;
-      border-radius:14px; margin:10px 0 0 0;
-      background:#eaeaf1; /* au cas où le GIF charge */
+    .hero-box{
+      width:100%; background:#ececf3; border-radius:16px; overflow:hidden;
+      margin:12px 0 4px 0;
     }
+    .hero{ width:100%; height:auto; display:block; }
 
-    /* -------- CONTENU -------- */
-    .content{ flex:1; min-height:0; display:flex; }
-    .content .wrap{ padding:12px var(--pad) 12px; display:flex; flex-direction:column; gap:14px; }
+    /* ===== FORM ===== */
+    main{ flex:1; min-height:0; display:flex; }
+    main .wrap{ padding:12px var(--pad) 12px; display:flex; flex-direction:column; gap:14px; }
     label{ display:block; font-size:16.5px; font-weight:800; margin:6px 0 8px; }
     input, select{
       width:100%; box-sizing:border-box; background:#fff; border:1px solid var(--border); border-radius:var(--r);
@@ -42,8 +41,9 @@
     .subline{ display:flex; justify-content:flex-end; margin-top:6px; }
     .add-link{ background:none; border:none; color:var(--primary); font-size:14.5px; text-decoration:underline; padding:0; cursor:pointer; }
     .hidden{ display:none !important; }
+    .hint{ font-size:13px; color:#666; margin-top:8px; }
 
-    /* -------- BOUTON FIXE BAS -------- */
+    /* ===== CTA BAS ===== */
     .actions{
       padding:10px 0 calc(env(safe-area-inset-bottom,0) + 14px);
       background:linear-gradient(180deg, rgba(242,242,247,0) 0%, var(--bg) 60%);
@@ -56,19 +56,20 @@
     #submit:disabled{ opacity:.6; cursor:default; }
     .msg{ font-size:15px; color:#0a8a0a; margin-top:6px; }
     .err{ font-size:15px; color:#c62828; margin-top:6px; }
-    .hint{ font-size:13px; color:#666; margin-top:8px; }
   </style>
 </head>
 <body>
   <div class="screen">
-    <header class="header">
+    <header>
       <div class="wrap">
-        <!-- ❗️GIF SEUL -->
-        <img src="go.gif" alt="" class="hero">
+        <div class="hero-box">
+          <!-- 🎞️ GIF (avec anti-cache) -->
+          <img id="hero" class="hero" alt="header animation">
+        </div>
       </div>
     </header>
 
-    <main class="content">
+    <main>
       <div class="wrap">
         <label>Type de transaction</label>
         <select id="type">
@@ -156,7 +157,17 @@
   </div>
 
   <script>
-    // 👉 Remplace par ton URL /exec du projet Apps Script "Compta perso"
+    // ====== GIF avec anti-cache + fallback
+    (function loadGif(){
+      const el = document.getElementById("hero");
+      const v = Date.now();          // bust cache
+      el.src = "go.gif?v=" + v;      // go.gif doit être à la racine
+      el.onerror = () => {
+        // si 404 (mauvais nom / casse), on retente sans query pour voir
+        el.src = "go.gif";
+      };
+    })();
+
     const ENDPOINT = "https://script.google.com/macros/s/AKfycbzF3P3AE1hcHuyFRZLnBS9eKtu0nz1jVyLxv8Ej0CbA78G-_ssXd2e-I9zgk58qqke46w/exec";
 
     const $ = id => document.getElementById(id);
@@ -167,7 +178,6 @@
       "Abonnement (mensuel)":"bloc-abo",
       "Paiement":"bloc-paiement"
     };
-
     function showBloc(){ const t=$("type").value; Object.values(blocs).forEach(id=>$(id).classList.add("hidden")); $(blocs[t]).classList.remove("hidden"); }
     $("type").addEventListener("change", showBloc);
 
