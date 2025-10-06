@@ -2,350 +2,368 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <title>I Need Resell</title>
+  <title>Saisie rapide</title>
+  <meta name="viewport" content="width=390, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="apple-touch-icon" href="logo1.png" />
   <style>
     :root{
       --primary:#6f57d3; --bg:#f2f2f7; --fg:#111; --border:#d9d9de;
-      --r:14px; --pad:18px; --maxw:420px;
+      --r:16px; --pad:18px; --maxw:390px;
     }
-    html, body {
-      margin:0; padding:0; height:100%; width:100%;
-      overflow-x:hidden; background:var(--bg); color:var(--fg);
+    html,body{height:100%;}
+    body{
+      margin:0; padding:0; background:var(--bg); color:var(--fg);
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-      -webkit-text-size-adjust:100%; overscroll-behavior:none;
+      font-size:18px; line-height:1.35; -webkit-text-size-adjust:100%;
     }
-    .wrap{ width:100%; max-width:var(--maxw); margin:0 auto; padding:0 var(--pad) 24px; box-sizing:border-box; overflow:hidden; }
-    .hero{ display:block; width:100%; height:auto; max-width:100%; border-radius:18px; margin:14px auto 10px; object-fit:contain; }
+    .screen{min-height:100vh; display:flex; flex-direction:column;}
+    .wrap{ width:100%; max-width:var(--maxw); margin:0 auto; box-sizing:border-box; padding:0 var(--pad); }
 
-    label{ display:block; font-size:16px; font-weight:800; margin:14px 0 8px; }
-
-    /* ne pas styler les checkbox */
-    input:not([type="checkbox"]), select{
-      width:100%; box-sizing:border-box; background:#fff; border:1px solid var(--border);
-      border-radius:var(--r); padding:14px 16px; font-size:16px; min-height:48px; outline:none;
-      -webkit-appearance:none; appearance:none;
+    /* Header GIF */
+    .header{ padding:14px var(--pad) 4px; }
+    .header .gif-box{
+      width:100%; height:80px; border-radius:20px; overflow:hidden;
+      background:#111; display:flex; align-items:center; justify-content:center;
     }
-    input:not([type="checkbox"]):focus,select:focus{ border-color:#c7b8ff; box-shadow:0 0 0 3px rgba(111,87,211,.15); }
+    .header .gif-box img{ height:100%; width:auto; display:block; }
 
-    .row{ display:flex; gap:14px; margin:0 0 2px; }
-    .row .field{ flex:1; min-width:0; display:flex; flex-direction:column; }
-
-    .select-wrap{ position:relative; }
-    .select-wrap::after{
-      content:""; position:absolute; right:14px; top:50%; width:14px; height:14px; transform:translateY(-50%);
-      pointer-events:none; background:no-repeat center/contain url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
+    label{ display:block; font-weight:700; margin:14px 0 8px; }
+    input, select{
+      width:100%; box-sizing:border-box; background:#fff; border:1px solid var(--border); border-radius:12px;
+      padding:12px 14px; font-size:18px; min-height:50px; outline:none;
+      appearance:none; -webkit-appearance:none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, #6fa8ff 50%),
+        linear-gradient(135deg, #6fa8ff 50%, transparent 50%);
+      background-position:
+        calc(100% - 20px) calc(50% - 3px),
+        calc(100% - 14px) calc(50% - 3px);
+      background-size:6px 6px, 6px 6px;
+      background-repeat:no-repeat;
     }
+    input[type="date"]{ background-image:none; }
 
-    .hint{ font-size:13px; color:#666; margin-top:6px; }
-    .msg{ font-size:14px; margin-top:8px; }
-    .msg.err{ color:#c62828; } .msg.ok{ color:#0a8a0a; }
+    .row{ display:flex; gap:14px; align-items:flex-start; }
+    .row .field{ flex:1; min-width:0; }
 
-    .actions{ padding:14px 0 calc(env(safe-area-inset-bottom,0) + 14px); }
+    .hint{ font-size:14px; color:#666; margin-top:6px; }
+
+    .actions{ padding:16px var(--pad) calc(env(safe-area-inset-bottom,0) + 16px); }
     #submit{
       width:100%; height:60px; border:none; border-radius:16px; background:var(--primary); color:#fff;
       font-size:20px; font-weight:800; letter-spacing:.2px; box-shadow:0 10px 24px rgba(111,87,211,.25);
-      display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer;
+      cursor:pointer; touch-action:manipulation;
     }
-    #submit:disabled{ opacity:.6; cursor:default; }
-    .spinner{ width:18px; height:18px; border-radius:50%; border:3px solid rgba(255,255,255,.35); border-top-color:#fff; animation:spin .8s linear infinite; }
-    @keyframes spin{ to{ transform:rotate(360deg); } }
+    #submit.loading{ opacity:.85; }
+    .msg{ font-size:16px; margin-top:8px; }
+    .ok{ color:#0a8a0a; }
+    .err{ color:#c62828; }
 
-    .bloc{ display:none; } .bloc.active{ display:block; }
+    .link{ background:none; border:none; color:#6f57d3; text-decoration:underline; padding:0; cursor:pointer; font-size:16px; }
 
-    .switchline{ display:flex; align-items:center; gap:10px; margin-top:10px; }
-    #ab-actif{
-      appearance:auto; -webkit-appearance:auto; width:22px; height:22px; margin:0; cursor:pointer; position:relative; z-index:1; display:inline-block;
-    }
-    .switchline label{ margin:0; font-weight:700; cursor:pointer; user-select:none; }
-
-    .link-add{ background:none; border:none; color:#6f57d3; text-decoration:underline; padding:0; cursor:pointer; }
-
-    @media (max-width:360px){ .row{ flex-direction:column; } }
+    /* toggle Actif */
+    .toggle{ display:flex; align-items:center; gap:12px; margin-top:8px; }
+    .toggle input{ width:44px; height:26px; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <img src="go.gif" alt="I Need Resell" class="hero" />
-
-    <main>
-      <label>Type de transaction</label>
-      <div class="select-wrap">
-        <select id="type">
-          <option>Achat stock</option>
-          <option>Frais annexes</option>
-          <option>Vente/Cashout</option>
-          <option>Abonnement (mensuel)</option>
-          <option>Paiement</option>
-        </select>
+  <div class="screen">
+    <header class="header wrap">
+      <div class="gif-box">
+        <img src="go.gif" alt="I Need Resell">
       </div>
+    </header>
+
+    <main class="wrap" style="padding-bottom:8px;">
+      <label>Type de transaction</label>
+      <select id="type">
+        <option>Achat stock</option>
+        <option>Frais annexes</option>
+        <option>Vente/Cashout</option>
+        <option>Abonnement (mensuel)</option>
+        <option>Paiement</option>
+      </select>
 
       <!-- ACHAT -->
-      <div id="b-achat" class="bloc active">
+      <div id="bloc-achat" class="bloc">
         <label>Item / Référence</label>
-        <input id="a-item" placeholder="Ex: 100 Jeans Levi's 501">
+        <input id="item" type="text" placeholder="Ex: 100 Jeans Levi's 501">
+
         <div class="row">
           <div class="field">
             <label>Date</label>
-            <input id="a-date" type="date">
+            <input id="date-achat" type="date">
           </div>
           <div class="field">
             <label>Montant (€)</label>
-            <input id="a-montant" inputmode="decimal" placeholder="ex: 79,90">
+            <input id="montant-achat" type="text" inputmode="decimal" placeholder="ex: 79,90">
             <div class="hint">Décimales : virgule ou point</div>
           </div>
         </div>
+
         <label>Fournisseur</label>
-        <div class="select-wrap"><select id="a-fs"></select></div>
-        <div class="hint">
-          <button class="link-add" data-k="fournisseur" type="button">+ ajouter</button>
-          <span id="st-fournisseur" class="hint"></span>
-        </div>
+        <select id="fournisseur"></select>
+        <div><button class="link" data-kind="fournisseur">+ ajouter</button></div>
       </div>
 
       <!-- FRAIS -->
-      <div id="b-frais" class="bloc">
+      <div id="bloc-frais" class="bloc" style="display:none;">
         <label>Description du frais</label>
-        <input id="f-desc" placeholder="Ex: URSSAF, pochettes, etc.">
+        <input id="frais-desc" type="text" placeholder="Ex: URSSAF, pochettes, etc.">
+
         <div class="row">
           <div class="field">
             <label>Date</label>
-            <input id="f-date" type="date">
+            <input id="date-frais" type="date">
           </div>
           <div class="field">
             <label>Montant (€)</label>
-            <input id="f-montant" inputmode="decimal" placeholder="ex: 12,50">
-            <div class="hint">Décimales : virgule ou point</div>
+            <input id="montant-frais" type="text" inputmode="decimal" placeholder="ex: 12,50">
           </div>
         </div>
+
         <label>Catégorie</label>
-        <div class="select-wrap"><select id="f-cat"></select></div>
-        <div class="hint">
-          <button class="link-add" data-k="categorie" type="button">+ ajouter</button>
-          <span id="st-categorie" class="hint"></span>
-        </div>
+        <select id="categorie"></select>
+        <div><button class="link" data-kind="categorie">+ ajouter</button></div>
       </div>
 
       <!-- VENTE -->
-      <div id="b-vente" class="bloc">
+      <div id="bloc-vente" class="bloc" style="display:none;">
         <div class="row">
           <div class="field">
             <label>Date</label>
-            <input id="v-date" type="date">
+            <input id="date-vente" type="date">
           </div>
           <div class="field">
             <label>Montant (€)</label>
-            <input id="v-montant" inputmode="decimal" placeholder="ex: 45">
-            <div class="hint">Décimales : virgule ou point</div>
+            <input id="montant-vente" type="text" inputmode="decimal" placeholder="ex: 45">
           </div>
         </div>
+
         <label>Compte Vinted</label>
-        <div class="select-wrap"><select id="v-compte"></select></div>
-        <div class="hint">
-          <button class="link-add" data-k="compteVinted" type="button">+ ajouter</button>
-          <span id="st-compteVinted" class="hint"></span>
-        </div>
+        <select id="compte-vinted"></select>
+        <div><button class="link" data-kind="compteVinted">+ ajouter</button></div>
       </div>
 
       <!-- ABONNEMENT -->
-      <div id="b-abo" class="bloc">
+      <div id="bloc-abo" class="bloc" style="display:none;">
         <label>Nom de l’abonnement</label>
-        <input id="ab-nom" placeholder="Ex: ChatGPT Plus">
+        <input id="abo-nom" type="text" placeholder="Ex: ChatGPT Plus">
+
         <div class="row">
           <div class="field">
             <label>Montant (€)</label>
-            <input id="ab-montant" inputmode="decimal" placeholder="ex: 20">
-            <div class="hint">Décimales : virgule ou point</div>
+            <input id="abo-montant" type="text" inputmode="decimal" placeholder="ex: 20">
           </div>
           <div class="field">
             <label>Jour du mois</label>
-            <input id="ab-jour" type="number" min="1" max="31" value="5">
+            <input id="abo-jour" type="number" min="1" max="31" value="5">
           </div>
         </div>
+
         <label>Catégorie</label>
-        <div class="select-wrap"><select id="ab-cat"></select></div>
-        <div class="hint">
-          <button class="link-add" data-k="categorie" type="button">+ ajouter</button>
-          <span id="st-categorie-abo" class="hint"></span>
-        </div>
-        <div class="switchline">
-          <input id="ab-actif" type="checkbox" checked />
-          <label for="ab-actif">Actif</label>
+        <select id="abo-categorie"></select>
+        <div><button class="link" data-kind="categorie">+ ajouter</button></div>
+
+        <div class="toggle">
+          <input id="abo-actif" type="checkbox" checked>
+          <label for="abo-actif" style="margin:0;font-weight:700;">Actif</label>
         </div>
       </div>
 
       <!-- PAIEMENT -->
-      <div id="b-paie" class="bloc">
+      <div id="bloc-paiement" class="bloc" style="display:none;">
         <div class="row">
           <div class="field">
             <label>Date</label>
-            <input id="p-date" type="date">
+            <input id="date-paiement" type="date">
           </div>
           <div class="field">
             <label>Montant (€)</label>
-            <input id="p-montant" inputmode="decimal" placeholder="ex: 1000">
-            <div class="hint">Décimales : virgule ou point</div>
+            <input id="montant-paiement" type="text" inputmode="decimal" placeholder="ex: 1000">
           </div>
         </div>
       </div>
 
-      <div id="form-msg" class="msg"></div>
-      <div class="actions"><button id="submit"><span>+ Ajouter</span></button></div>
+      <div id="msg" class="msg"></div>
     </main>
+
+    <div class="actions">
+      <div class="wrap">
+        <button id="submit">+ Ajouter</button>
+      </div>
+    </div>
   </div>
 
   <script>
+    // 🔗 Apps Script Web App (ton URL)
     const ENDPOINT = "https://script.google.com/macros/s/AKfycbzF3P3AE1hcHuyFRZLnBS9eKtu0nz1jVyLxv8Ej0CbA78G-_ssXd2e-I9zgk58qqke46w/exec";
-    const $  = s => document.querySelector(s);
-    const $$ = s => Array.from(document.querySelectorAll(s));
 
+    const $ = id => document.getElementById(id);
     const blocs = {
-      "Achat stock":"b-achat","Frais annexes":"b-frais","Vente/Cashout":"b-vente","Abonnement (mensuel)":"b-abo","Paiement":"b-paie"
+      "Achat stock":"bloc-achat",
+      "Frais annexes":"bloc-frais",
+      "Vente/Cashout":"bloc-vente",
+      "Abonnement (mensuel)":"bloc-abo",
+      "Paiement":"bloc-paiement"
     };
-    function switchTypeUI(){
-      $$(".bloc").forEach(b=>b.classList.remove("active"));
-      const id = blocs[$("#type").value];
-      document.getElementById(id).classList.add("active");
-      $("#form-msg").textContent=""; $("#form-msg").className="msg";
+
+    function showBloc(){
+      const t = $("type").value;
+      Object.values(blocs).forEach(id => document.getElementById(id).style.display = "none");
+      document.getElementById(blocs[t]).style.display = "block";
+      $("#msg").className="msg";
+      $("#msg").textContent="";
     }
-    $("#type").addEventListener("change", switchTypeUI);
+    $("type").addEventListener("change", showBloc);
 
     function todayISO(){
       const t=new Date(), y=t.getFullYear(), m=String(t.getMonth()+1).padStart(2,"0"), d=String(t.getDate()).padStart(2,"0");
       return `${y}-${m}-${d}`;
     }
-    ["#a-date","#f-date","#v-date","#p-date"].forEach(sel=>{ const el=$(sel); if(el) el.value=todayISO(); });
+    ["date-achat","date-frais","date-vente","date-paiement"].forEach(id => { const el=$(id); if(el) el.value=todayISO(); });
 
-    function fillSelect(sel, arr){
-      if(!sel) return;
-      const list = Array.isArray(arr) ? arr : [];
-      const frag = document.createDocumentFragment();
-      list.forEach(v => { const o=document.createElement("option"); o.value=o.textContent=v; frag.appendChild(o); });
-      sel.innerHTML = ""; sel.appendChild(frag);
-    }
+    function fillSelect(el, arr){ el.innerHTML = (arr||[]).map(v=>`<option>${v}</option>`).join(""); }
+
     async function loadLists(){
       try{
-        const url = ENDPOINT + "?api=lists&_=" + Date.now();
-        const r = await fetch(url, { cache:"no-store" });
-        const json = await r.json();
-        const d = (json && json.data) ? json.data : {};
-        fillSelect($("#a-fs"), d.fournisseurs);
-        fillSelect($("#f-cat"), d.categories);
-        fillSelect($("#v-compte"), d.comptesVinted);
-        fillSelect($("#ab-cat"), d.categories);
+        const r=await fetch(ENDPOINT+"?api=lists");
+        const {data}=await r.json();
+        fillSelect($("fournisseur"), data.fournisseurs);
+        fillSelect($("categorie"), data.categories);
+        fillSelect($("compte-vinted"), data.comptesVinted);
+        fillSelect($("abo-categorie"), data.categories);
       }catch(e){
-        $("#form-msg").className="msg err";
-        $("#form-msg").textContent="Erreur chargement des listes.";
+        $("#msg").className="msg err"; $("#msg").textContent="Erreur listes : "+e.message;
       }
     }
-    loadLists();
+    loadLists(); showBloc();
 
+    // + ajouter dans Paramètres (fournisseur / catégorie / compte Vinted)
     document.body.addEventListener("click", async (e)=>{
-      if(!e.target.classList.contains("link-add")) return;
-      const kind = e.target.getAttribute("data-k");
-      const label = {fournisseur:"Nouveau fournisseur", categorie:"Nouvelle catégorie", compteVinted:"Nouveau compte Vinted"}[kind] || "Nouvelle valeur";
-      const val = prompt(label+" :"); if(!val) return;
-
-      const statusEl = document.getElementById("st-"+kind) || document.getElementById("st-"+kind+"-abo");
-      if(statusEl) statusEl.textContent = "Ajout en cours…";
+      if(!e.target.matches(".link")) return;
+      const kind = e.target.getAttribute("data-kind");
+      const labels = {fournisseur:"Nouveau fournisseur", categorie:"Nouvelle catégorie", compteVinted:"Nouveau compte Vinted"};
+      const val = prompt(labels[kind]+" :");
+      if(!val) return;
+      const btn = e.target;
+      const original = btn.textContent;
       try{
-        const params = new URLSearchParams(); params.append("action","addParam"); params.append("kind",kind); params.append("value",val);
-        const r = await fetch(ENDPOINT, { method:"POST", body:params });
-        const json = await r.json(); if(!json.ok) throw new Error(json.error||"Erreur serveur");
-        const d=json.data||{};
-        if(kind==="fournisseur") fillSelect($("#a-fs"), d.fournisseurs);
-        if(kind==="categorie"){ fillSelect($("#f-cat"), d.categories); fillSelect($("#ab-cat"), d.categories); }
-        if(kind==="compteVinted") fillSelect($("#v-compte"), d.comptesVinted);
-        if(statusEl){ statusEl.textContent="Ajouté ✅"; setTimeout(()=>statusEl.textContent="",1500); }
+        btn.textContent = "Ajout en cours…";
+        const params = new URLSearchParams();
+        params.append("action","addParam");
+        params.append("kind", kind);
+        params.append("value", val);
+        const r = await fetch(ENDPOINT, {
+          method:"POST",
+          headers:{ "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8" },
+          body: params.toString()
+        });
+        const json = await r.json();
+        if(!json.ok) throw new Error(json.error||"Erreur ajout");
+        const d = json.data || {};
+        if(kind==="fournisseur") fillSelect($("fournisseur"), d.fournisseurs||[]);
+        if(kind==="categorie"){ fillSelect($("categorie"), d.categories||[]); fillSelect($("abo-categorie"), d.categories||[]); }
+        if(kind==="compteVinted") fillSelect($("compte-vinted"), d.comptesVinted||[]);
+        btn.textContent = "Ajouté ✅";
+        setTimeout(()=>btn.textContent=original, 1000);
       }catch(err){
-        if(statusEl){ statusEl.textContent="Erreur : "+err.message; } else alert("Erreur : "+err.message);
+        alert("Erreur: "+err.message);
+        btn.textContent = original;
       }
     });
 
     function need(v){ return v!=null && String(v).trim()!==""; }
-    function validate(){
-      const t=$("#type").value;
-      if(t==="Achat stock"){
-        if(!need($("#a-item").value)) return "Item requis";
-        if(!need($("#a-date").value)) return "Date requise";
-        if(!need($("#a-montant").value)) return "Montant requis";
-        if(!need($("#a-fs").value)) return "Fournisseur requis";
-      } else if(t==="Frais annexes"){
-        if(!need($("#f-desc").value)) return "Description requise";
-        if(!need($("#f-date").value)) return "Date requise";
-        if(!need($("#f-montant").value)) return "Montant requis";
-        if(!need($("#f-cat").value)) return "Catégorie requise";
-      } else if(t==="Vente/Cashout"){
-        if(!need($("#v-date").value)) return "Date requise";
-        if(!need($("#v-montant").value)) return "Montant requis";
-        if(!need($("#v-compte").value)) return "Compte Vinted requis";
-      } else if(t==="Abonnement (mensuel)"){
-        if(!need($("#ab-nom").value)) return "Nom requis";
-        if(!need($("#ab-montant").value)) return "Montant requis";
-        if(!need($("#ab-jour").value)) return "Jour du mois requis";
-        if(!need($("#ab-cat").value)) return "Catégorie requise";
-      } else {
-        if(!need($("#p-date").value)) return "Date requise";
-        if(!need($("#p-montant").value)) return "Montant requis";
-      }
-      return "";
-    }
 
-    function resetAfterSuccess(type){
+    function validate(type){
       if(type==="Achat stock"){
-        $("#a-item").value=""; $("#a-montant").value=""; $("#a-date").value=todayISO(); $("#a-item").focus();
+        return need($("#item").value) && need($("#date-achat").value) && need($("#montant-achat").value) && need($("#fournisseur").value);
       } else if(type==="Frais annexes"){
-        $("#f-desc").value=""; $("#f-montant").value=""; $("#f-date").value=todayISO(); $("#f-desc").focus();
+        return need($("#frais-desc").value) && need($("#date-frais").value) && need($("#montant-frais").value) && need($("#categorie").value);
       } else if(type==="Vente/Cashout"){
-        $("#v-montant").value=""; $("#v-date").value=todayISO();
+        return need($("#date-vente").value) && need($("#montant-vente").value) && need($("#compte-vinted").value);
       } else if(type==="Abonnement (mensuel)"){
-        $("#ab-nom").value=""; $("#ab-montant").value=""; $("#ab-actif").checked = true;
-      } else {
-        $("#p-montant").value=""; $("#p-date").value=todayISO();
+        return need($("#abo-nom").value) && need($("#abo-montant").value) && need($("#abo-jour").value) && need($("#abo-categorie").value);
+      } else { // Paiement
+        return need($("#date-paiement").value) && need($("#montant-paiement").value);
       }
     }
 
-    $("#submit").addEventListener("click", async (e)=>{
-      e.preventDefault();
-      $("#form-msg").textContent=""; $("#form-msg").className="msg";
-      const err = validate();
-      if(err){ $("#form-msg").className="msg err"; $("#form-msg").textContent=err; return; }
-
-      const t=$("#type").value, p={ type:t };
-      if(t==="Achat stock"){
-        p.item=$("#a-item").value; p.dateISO=$("#a-date").value; p.montant=$("#a-montant").value.replace(",","."); p.fournisseur=$("#a-fs").value;
-      } else if(t==="Frais annexes"){
-        p.fraisDesc=$("#f-desc").value; p.dateISO=$("#f-date").value; p.montant=$("#f-montant").value.replace(",","."); p.categorie=$("#f-cat").value;
-      } else if(t==="Vente/Cashout"){
-        p.dateISO=$("#v-date").value; p.montant=$("#v-montant").value.replace(",","."); p.compteVinted=$("#v-compte").value;
-      } else if(t==="Abonnement (mensuel)"){
-        p.aboNom=$("#ab-nom").value; p.montant=$("#ab-montant").value.replace(",",".");
-        p.aboJour=$("#ab-jour").value; p.categorie=$("#ab-cat").value;
-        // 🔧 envoyer explicitement "true"/"false"
-        p.aboActif = $("#ab-actif").checked ? "true" : "false";
+    function clearFields(type){
+      if(type==="Achat stock"){
+        $("#item").value=""; $("#montant-achat").value="";
+      } else if(type==="Frais annexes"){
+        $("#frais-desc").value=""; $("#montant-frais").value="";
+      } else if(type==="Vente/Cashout"){
+        $("#montant-vente").value="";
+      } else if(type==="Abonnement (mensuel)"){
+        $("#abo-nom").value=""; $("#abo-montant").value="";
+        $("#abo-jour").value="5"; $("#abo-actif").checked = true;
       } else {
-        p.dateISO=$("#p-date").value; p.montant=$("#p-montant").value.replace(",",".");
+        $("#montant-paiement").value="";
+      }
+    }
+
+    $("#submit").addEventListener("click", async ()=>{
+      const type = $("#type").value;
+      $("#msg").className="msg"; $("#msg").textContent="";
+      if(!validate(type)){
+        $("#msg").className="msg err"; $("#msg").textContent="Merci de remplir tous les champs requis.";
+        return;
       }
 
-      const btn=$("#submit"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span><span>Ajout en cours…</span>';
+      $("#submit").classList.add("loading");
+      $("#submit").textContent = "Ajout en cours…";
+
+      const p = new URLSearchParams();
+      p.append("type", type);
+
+      if(type==="Achat stock"){
+        p.append("item", $("#item").value);
+        p.append("dateISO", $("#date-achat").value);
+        p.append("montant", $("#montant-achat").value);
+        p.append("fournisseur", $("#fournisseur").value);
+      } else if(type==="Frais annexes"){
+        p.append("fraisDesc", $("#frais-desc").value);
+        p.append("dateISO", $("#date-frais").value);
+        p.append("montant", $("#montant-frais").value);
+        p.append("categorie", $("#categorie").value);
+      } else if(type==="Vente/Cashout"){
+        p.append("dateISO", $("#date-vente").value);
+        p.append("montant", $("#montant-vente").value);
+        p.append("compteVinted", $("#compte-vinted").value);
+      } else if(type==="Abonnement (mensuel)"){
+        p.append("aboNom", $("#abo-nom").value);
+        p.append("montant", $("#abo-montant").value);
+        p.append("aboJour", $("#abo-jour").value);
+        p.append("categorie", $("#abo-categorie").value);
+        // ✅ envoyer une valeur claire "true"/"false"
+        p.append("aboActif", $("#abo-actif").checked ? "true" : "false");
+      } else {
+        p.append("dateISO", $("#date-paiement").value);
+        p.append("montant", $("#montant-paiement").value);
+      }
+
       try{
-        const body=new URLSearchParams(Object.entries(p));
-        const r=await fetch(ENDPOINT,{method:"POST",body}); const json=await r.json().catch(()=>({}));
-        if(!r.ok||json.ok===false) throw new Error(json.error||("HTTP "+r.status));
-        btn.innerHTML="✅ Ajouté"; $("#form-msg").className="msg ok"; $("#form-msg").textContent="Ajouté ✅";
-        resetAfterSuccess(t); // 🧼 nettoyer les champs selon le type
-      }catch(e2){
-        btn.innerHTML="❌ Erreur"; $("#form-msg").className="msg err"; $("#form-msg").textContent="Erreur : "+e2.message;
-      }finally{
-        setTimeout(()=>{ btn.innerHTML="+ Ajouter"; btn.disabled=false; },1500);
+        const r = await fetch(ENDPOINT, {
+          method:"POST",
+          headers:{ "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8" },
+          body: p.toString()
+        });
+        const j = await r.json().catch(()=>({}));
+        if(!r.ok || j.ok===false) throw new Error(j.error || ("HTTP "+r.status));
+        $("#msg").className="msg ok"; $("#msg").textContent="Ajouté ✅";
+        $("#submit").textContent = "+ Ajouter";
+        $("#submit").classList.remove("loading");
+        clearFields(type);
+      }catch(e){
+        $("#msg").className="msg err"; $("#msg").textContent="Erreur : "+e.message;
+        $("#submit").textContent = "+ Ajouter";
+        $("#submit").classList.remove("loading");
       }
     });
-
-    switchTypeUI();
-    document.getElementById("ab-actif").checked = true;
   </script>
 </body>
 </html>
