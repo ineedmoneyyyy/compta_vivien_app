@@ -8,233 +8,228 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="apple-touch-icon" href="logo1.png" />
 
-  <!-- Flatpickr (calendrier mobile, tap = validé) -->
+  <!-- Flatpickr pour un tap = une date (format JJ/MM/AAAA) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/fr.js"></script>
 
   <style>
     :root{
-      --primary:#6f57d3; --bg:#f2f2f7; --fg:#111; --border:#d9d9de;
-      --r:14px; --pad:18px; --maxw:420px;
-      --gap:14px; --gap-sm:10px;
+      --primary:#6f57d3; --bg:#f2f2f7; --fg:#111; --border:#d9d9de; --r:14px; --pad:18px; --maxw:390px;
+      --hint:#6a6a6a;
     }
-    html,body{height:100%}
+    html,body{height:100%; overflow:hidden;}
     body{
       margin:0; padding:0; background:var(--bg); color:var(--fg);
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-      font-size:18px; line-height:1.35; -webkit-text-size-adjust:100%;
+      font-size:18px; line-height:1.35; -webkit-text-size-adjust:100%; overscroll-behavior:none;
     }
-    .screen{position:fixed; inset:0; display:flex; flex-direction:column;
-      padding:calc(env(safe-area-inset-top,0)) env(safe-area-inset-right,0) 0 env(safe-area-inset-left,0);}
-    .wrap{width:100%; max-width:var(--maxw); margin:0 auto; box-sizing:border-box; padding:0 var(--pad);}
-    .header{ width:100%; }
-    .header .wrap{ padding:10px var(--pad) 0; }
+    .screen{ position:fixed; inset:0; display:flex; flex-direction:column;
+      padding:calc(env(safe-area-inset-top,0)) env(safe-area-inset-right,0) 0 env(safe-area-inset-left,0);
+    }
+    .wrap{ width:100%; max-width:var(--maxw); margin:0 auto; box-sizing:border-box; padding:0 var(--pad); }
 
-    /* GIF plein, sans bordures visibles */
+    /* Header GIF : entier, sans bordure, pas rogné */
+    .header{ width:100%; background:transparent; }
+    .header .wrap{ padding:12px var(--pad) 6px; }
     .header-gif{
-      width:100%; height:76px; border-radius:18px; display:block;
-      object-fit:cover; object-position:center;
-      background:#000; /* évite halo */
+      width:100%; height:68px;
+      display:block; margin:0 auto;
+      object-fit:contain; /* montre l'image complète */
+      border-radius:14px;
+      background:transparent;
     }
 
     .content{ flex:1; min-height:0; display:flex; }
-    .content .wrap{ padding:14px var(--pad) 12px; display:flex; flex-direction:column; gap:var(--gap); }
+    .content .wrap{ padding:6px var(--pad) 12px; display:flex; flex-direction:column; gap:14px; }
 
-    label{ display:block; font-weight:800; margin:6px 0 8px; font-size:20px; }
-    .sub-label{font-weight:700; font-size:18px; margin:6px 0 6px;}
+    label{ display:block; font-size:18px; font-weight:700; margin:6px 0 8px; }
+    .hint{ font-size:14px; color:var(--hint); margin-top:6px; }
 
     input, select{
       width:100%; box-sizing:border-box; background:#fff; border:1px solid var(--border); border-radius:var(--r);
-      padding:14px 16px; font-size:18px; min-height:52px; outline:none; appearance:none;
+      padding:14px 16px; font-size:18px; min-height:52px; outline:none;
     }
     input:focus,select:focus{ border-color:#c7b8ff; box-shadow:0 0 0 3px rgba(111,87,211,.15); }
 
-    /* Flèche bleue iOS-like pour tous les <select> */
-    select{
-      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%232668FF" d="M7 10l5 5 5-5"/></svg>');
-      background-repeat: no-repeat; background-position: right 12px center; background-size: 18px 18px;
-      padding-right:44px;
+    /* flèches bleues sur les listes */
+    .select-wrap{ position:relative; }
+    .select-wrap::after{
+      content:""; position:absolute; right:14px; top:50%; transform:translateY(-50%);
+      width:12px; height:12px; pointer-events:none;
+      background:
+        linear-gradient(45deg, #3b82f6 50%, transparent 50%) 0 0/100% 100%;
+      clip-path: polygon(0 35%, 100% 35%, 50% 85%);
+      opacity:.9;
     }
+    .row{ display:flex; gap:14px; }
+    .row .field{ flex:1; min-width:0; display:flex; flex-direction:column; }
 
-    .row{ display:grid; grid-template-columns: 1fr 1fr; gap:var(--gap-sm); }
-    .hint{ font-size:14px; color:#666; margin-top:8px; }
-    .subline{ display:flex; justify-content:flex-end; margin-top:6px; gap:10px; align-items:center;}
+    .subline{ display:flex; justify-content:flex-end; margin-top:8px; }
     .add-link{
-      background:none; border:none; color:var(--primary); font-size:16px; text-decoration:underline; padding:0; cursor:pointer;
+      background:none; border:none; color:var(--primary); font-size:15px; text-decoration:underline; padding:0; cursor:pointer;
     }
-
-    /* Toggle Actif compact */
-    .toggle{
-      display:flex; align-items:center; gap:10px; margin-top:6px;
-      font-size:16px;
-    }
-    .toggle input{ width:22px; height:22px; }
+    .add-link[disabled]{ opacity:.6; cursor:default; }
 
     .actions{ padding:10px 0 calc(env(safe-area-inset-bottom,0) + 14px);
-      background:linear-gradient(180deg, rgba(242,242,247,0) 0%, var(--bg) 50%); }
+      background:linear-gradient(180deg, rgba(242,242,247,0) 0%, var(--bg) 50%);
+    }
     .actions .wrap{ padding-top:0; }
-
     #submit{
       width:100%; height:60px; border:none; border-radius:16px; background:var(--primary); color:#fff;
-      font-size:20px; font-weight:800; letter-spacing:.2px; box-shadow:0 10px 24px rgba(111,87,211,.25);
-      cursor:pointer; touch-action:manipulation;
+      font-size:20px; font-weight:800; letter-spacing:.2px; box-shadow:0 10px 24px rgba(111,87,211,.25); cursor:pointer; touch-action:manipulation;
     }
-    #submit:disabled{ opacity:.7; }
+    #submit:disabled{ opacity:.6; cursor:default; }
+    .msg{ font-size:16px; margin-top:6px; }
+    .ok{ color:#0a8a0a; } .err{ color:#c62828; }
 
-    .msg{ font-size:16px; margin-top:6px; text-align:center; }
-    .msg.ok{ color:#0a8a0a; } .msg.err{ color:#c62828; }
-
-    /* Flatpickr unifiée */
-    .flatpickr-calendar { font-size:16px; }
+    /* case "Actif" plus compacte */
+    .abo-active{ display:flex; align-items:center; gap:10px; margin-top:4px; }
+    .abo-active input{ width:20px; height:20px; }
   </style>
 </head>
 <body>
   <div class="screen">
     <div class="header">
       <div class="wrap">
+        <!-- Utilise ton GIF go.gif – entier, pas rogné -->
         <img src="go.gif" alt="I Need Resell" class="header-gif">
       </div>
     </div>
 
     <main class="content">
       <div class="wrap">
+
         <label>Type de transaction</label>
-        <select id="type">
-          <option>Achat stock</option>
-          <option>Frais annexes</option>
-          <option>Vente/Cashout</option>
-          <option>Abonnement (mensuel)</option>
-          <option>Paiement</option>
-        </select>
+        <div class="select-wrap">
+          <select id="type">
+            <option>Achat stock</option>
+            <option>Frais annexes</option>
+            <option>Vente/Cashout</option>
+            <option>Abonnement (mensuel)</option>
+            <option>Paiement</option>
+          </select>
+        </div>
 
         <!-- ACHAT -->
         <div id="bloc-achat" class="bloc">
-          <div class="sub-label">Item / Référence</div>
+          <label>Item / Référence</label>
           <input id="item" type="text" placeholder="Ex: 100 Jeans Levi's 501">
 
           <div class="row">
-            <div>
-              <div class="sub-label">Date</div>
-              <input id="date-achat" type="text" autocomplete="off">
+            <div class="field">
+              <label>Date</label>
+              <input id="date-achat" type="text" inputmode="numeric" placeholder="jj/mm/aaaa">
+              <input id="date-achat-iso" type="hidden">
             </div>
-            <div>
-              <div class="sub-label">Montant (€)</div>
+            <div class="field">
+              <label>Montant (€)</label>
               <input id="montant-achat" type="text" inputmode="decimal" placeholder="ex: 79,90">
               <div class="hint">Décimales : virgule ou point</div>
             </div>
           </div>
 
-          <div class="sub-label">Fournisseur</div>
-          <select id="fournisseur"></select>
-          <div class="subline">
-            <button class="add-link" type="button" data-kind="fournisseur">+ ajouter</button>
-            <span class="add-status" id="status-fournisseur"></span>
-          </div>
+          <label>Fournisseur</label>
+          <div class="select-wrap"><select id="fournisseur"></select></div>
+          <div class="subline"><button class="add-link" type="button" data-kind="fournisseur">+ ajouter</button></div>
         </div>
 
         <!-- FRAIS -->
         <div id="bloc-frais" class="bloc" style="display:none">
-          <div class="sub-label">Description du frais</div>
+          <label>Description du frais</label>
           <input id="frais-desc" type="text" placeholder="Ex: Pochettes, URSSAF, etc.">
+
           <div class="row">
-            <div>
-              <div class="sub-label">Date</div>
-              <input id="date-frais" type="text" autocomplete="off">
+            <div class="field">
+              <label>Date</label>
+              <input id="date-frais" type="text" inputmode="numeric" placeholder="jj/mm/aaaa">
+              <input id="date-frais-iso" type="hidden">
             </div>
-            <div>
-              <div class="sub-label">Montant (€)</div>
+            <div class="field">
+              <label>Montant (€)</label>
               <input id="montant-frais" type="text" inputmode="decimal" placeholder="ex: 12,50">
               <div class="hint">Décimales : virgule ou point</div>
             </div>
           </div>
 
-          <div class="sub-label">Catégorie</div>
-          <select id="categorie"></select>
-          <div class="subline">
-            <button class="add-link" type="button" data-kind="categorie">+ ajouter</button>
-            <span class="add-status" id="status-categorie"></span>
-          </div>
+          <label>Catégorie</label>
+          <div class="select-wrap"><select id="categorie"></select></div>
+          <div class="subline"><button class="add-link" type="button" data-kind="categorie">+ ajouter</button></div>
         </div>
 
         <!-- VENTE -->
         <div id="bloc-vente" class="bloc" style="display:none">
           <div class="row">
-            <div>
-              <div class="sub-label">Date</div>
-              <input id="date-vente" type="text" autocomplete="off">
+            <div class="field">
+              <label>Date</label>
+              <input id="date-vente" type="text" inputmode="numeric" placeholder="jj/mm/aaaa">
+              <input id="date-vente-iso" type="hidden">
             </div>
-            <div>
-              <div class="sub-label">Montant (€)</div>
+            <div class="field">
+              <label>Montant (€)</label>
               <input id="montant-vente" type="text" inputmode="decimal" placeholder="ex: 45">
               <div class="hint">Décimales : virgule ou point</div>
             </div>
           </div>
 
-          <div class="sub-label">Compte Vinted</div>
-          <select id="compte-vinted"></select>
-          <div class="subline">
-            <button class="add-link" type="button" data-kind="compteVinted">+ ajouter</button>
-            <span class="add-status" id="status-compteVinted"></span>
-          </div>
+          <label>Compte Vinted</label>
+          <div class="select-wrap"><select id="compte-vinted"></select></div>
+          <div class="subline"><button class="add-link" type="button" data-kind="compteVinted">+ ajouter</button></div>
         </div>
 
         <!-- ABONNEMENT -->
         <div id="bloc-abo" class="bloc" style="display:none">
-          <div class="sub-label">Nom de l’abonnement</div>
+          <label>Nom de l’abonnement</label>
           <input id="abo-nom" type="text" placeholder="Ex: ChatGPT Plus">
+
           <div class="row">
-            <div>
-              <div class="sub-label">Montant (€)</div>
+            <div class="field">
+              <label>Montant (€)</label>
               <input id="abo-montant" type="text" inputmode="decimal" placeholder="ex: 20">
               <div class="hint">Décimales : virgule ou point</div>
             </div>
-            <div>
-              <div class="sub-label">Jour du mois</div>
+            <div class="field">
+              <label>Jour du mois</label>
               <input id="abo-jour" type="number" min="1" max="31" value="5">
             </div>
           </div>
 
-          <div class="sub-label">Catégorie</div>
-          <select id="abo-categorie"></select>
-          <div class="subline">
-            <button class="add-link" type="button" data-kind="categorie">+ ajouter</button>
-            <span class="add-status" id="status-abo-categorie"></span>
-          </div>
+          <label>Catégorie</label>
+          <div class="select-wrap"><select id="abo-categorie"></select></div>
 
-          <div class="toggle">
+          <div class="abo-active">
             <input id="abo-actif" type="checkbox" checked>
             <label for="abo-actif" style="margin:0;">Actif</label>
           </div>
         </div>
 
         <!-- PAIEMENT -->
-        <div id="bloc-pay" class="bloc" style="display:none">
+        <div id="bloc-paiement" class="bloc" style="display:none">
           <div class="row">
-            <div>
-              <div class="sub-label">Date</div>
-              <input id="date-paiement" type="text" autocomplete="off">
+            <div class="field">
+              <label>Date</label>
+              <input id="date-paiement" type="text" inputmode="numeric" placeholder="jj/mm/aaaa">
+              <input id="date-paiement-iso" type="hidden">
             </div>
-            <div>
-              <div class="sub-label">Montant (€)</div>
+            <div class="field">
+              <label>Montant (€)</label>
               <input id="montant-paiement" type="text" inputmode="decimal" placeholder="ex: 1000">
               <div class="hint">Décimales : virgule ou point</div>
             </div>
           </div>
         </div>
 
-        <div id="feedback" class="msg" style="display:none;"></div>
+        <div id="feedback" class="msg ok" style="display:none;"></div>
         <div id="error" class="msg err" style="display:none;"></div>
       </div>
     </main>
 
     <div class="actions">
-      <div class="wrap"><button id="submit">➕ Ajouter</button></div>
+      <div class="wrap"><button id="submit">+ Ajouter</button></div>
     </div>
   </div>
 
   <script>
-    // ✅ Ton Apps Script (celui que tu as donné)
     const ENDPOINT = "https://script.google.com/macros/s/AKfycbzF3P3AE1hcHuyFRZLnBS9eKtu0nz1jVyLxv8Ej0CbA78G-_ssXd2e-I9zgk58qqke46w/exec";
 
     const $ = id => document.getElementById(id);
@@ -243,35 +238,60 @@
       "Frais annexes":"bloc-frais",
       "Vente/Cashout":"bloc-vente",
       "Abonnement (mensuel)":"bloc-abo",
-      "Paiement":"bloc-pay"
+      "Paiement":"bloc-paiement"
     };
+
     function switchTypeUI(){
-      const t=$("type").value;
+      const t = $("type").value;
       Object.values(blocs).forEach(id=>document.getElementById(id).style.display="none");
-      document.getElementById(blocs[t]).style.display="block";
-      hideMsg();
+      document.getElementById(blocs[t]).style.display = "block";
+      hideMsgs();
     }
     $("type").addEventListener("change", switchTypeUI);
 
-    function hideMsg(){
-      $("feedback").style.display="none";
-      $("error").style.display="none";
+    function hideMsgs(){ $("feedback").style.display="none"; $("error").style.display="none"; }
+
+    // ===== Dates JJ/MM/AAAA → hidden ISO =====
+    function toISOFromFR(str){
+      // "dd/mm/yyyy" -> "yyyy-mm-dd"
+      const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(str).trim());
+      if(!m) return "";
+      const dd = String(m[1]).padStart(2,"0");
+      const mm = String(m[2]).padStart(2,"0");
+      const yy = m[3];
+      return `${yy}-${mm}-${dd}`;
     }
+    function todayFR(){
+      const t=new Date(), d=String(t.getDate()).padStart(2,"0"), m=String(t.getMonth()+1).padStart(2,"0"), y=t.getFullYear();
+      return `${d}/${m}/${y}`;
+    }
+    function initPicker(inputId, hiddenId){
+      const input = $(inputId), hidden = $(hiddenId);
+      if(!input) return;
+      input.value = todayFR();
+      hidden.value = toISOFromFR(input.value);
 
-    // Calendriers Flatpickr (tap = validé)
-    (function initCalendars(){
-      const opts = {
+      flatpickr(input, {
         locale: flatpickr.l10ns.fr,
-        dateFormat: "Y-m-d",
+        dateFormat: "d/m/Y",
         defaultDate: new Date(),
-        disableMobile: true,
         clickOpens: true,
-        onChange(selectedDates, dateStr, instance){ instance.close(); }
-      };
-      ["date-achat","date-frais","date-vente","date-paiement"].forEach(id=>flatpickr("#"+id, opts));
-    })();
+        allowInput: true,
+        onChange: (dates, str) => { hidden.value = toISOFromFR(str); },
+        onClose: (dates, str) => { hidden.value = toISOFromFR(str); }
+      });
+    }
+    // init all date pickers
+    initPicker("date-achat","date-achat-iso");
+    initPicker("date-frais","date-frais-iso");
+    initPicker("date-vente","date-vente-iso");
+    initPicker("date-paiement","date-paiement-iso");
 
-    // Chargement des listes
+    // Remplir listes
+    function fillSelect(el, arr){
+      el.innerHTML = "";
+      (arr||[]).forEach(v=>{ const o=document.createElement("option"); o.value=o.textContent=v; el.appendChild(o); });
+    }
     async function loadLists(){
       try{
         const r=await fetch(ENDPOINT+"?api=lists");
@@ -281,24 +301,21 @@
         fillSelect($("compte-vinted"), data.comptesVinted);
         fillSelect($("abo-categorie"), data.categories);
       }catch(e){
-        showErr("Erreur listes : "+e.message);
+        $("error").textContent="Erreur listes: "+e.message; $("error").style.display="block";
       }
     }
-    function fillSelect(sel, arr){ sel.innerHTML=""; (arr||[]).forEach(v=>{const o=document.createElement("option"); o.value=o.textContent=v; sel.appendChild(o);}); }
 
-    // + ajouter dans Paramètres (avec états)
+    // + ajouter (paramètres) avec état visuel
     document.body.addEventListener("click", async (e)=>{
       if(!e.target.matches(".add-link")) return;
       const btn = e.target;
-      const kind= btn.getAttribute("data-kind");
-
-      const labels={fournisseur:"Nouveau fournisseur", categorie:"Nouvelle catégorie", compteVinted:"Nouveau compte Vinted"};
-      const val = prompt(labels[kind]+" :");
+      const kind = btn.getAttribute("data-kind");
+      const labels={categorie:"Nouvelle catégorie",fournisseur:"Nouveau fournisseur",compteVinted:"Nouveau compte Vinted"};
+      const val = prompt((labels[kind]||"Nouvelle valeur")+" :");
       if(!val) return;
 
-      const statusEl = document.getElementById("status-"+kind) || document.getElementById("status-abo-categorie");
       try{
-        btn.disabled=true; btn.textContent="Ajout en cours…"; if(statusEl) statusEl.textContent="";
+        btn.disabled=true; const baseText=btn.textContent; btn.textContent="Ajout en cours…";
         const params = new URLSearchParams();
         params.append("action","addParam");
         params.append("kind", kind);
@@ -310,87 +327,70 @@
           body: params.toString()
         });
         const json = await r.json();
-        if(!json.ok) throw new Error(json.error||"Erreur ajout");
-
-        // rafraîchir les listes concernées
+        if(!json.ok) throw new Error(json.error||"Erreur ajout paramètre");
         const d=json.data||{};
         if(kind==='fournisseur') fillSelect($("fournisseur"), d.fournisseurs||[]);
-        if(kind==='categorie'){
-          fillSelect($("categorie"), d.categories||[]);
-          fillSelect($("abo-categorie"), d.categories||[]);
-        }
+        if(kind==='categorie'){ fillSelect($("categorie"), d.categories||[]); fillSelect($("abo-categorie"), d.categories||[]); }
         if(kind==='compteVinted') fillSelect($("compte-vinted"), d.comptesVinted||[]);
-
-        btn.textContent="Ajouté ✅";
-        if(statusEl) statusEl.textContent=""; // optionnel
+        btn.textContent="Ajouté ✓"; setTimeout(()=>{ btn.textContent=baseText; btn.disabled=false; },900);
       }catch(err){
-        alert("Erreur: "+err.message);
-        btn.textContent="+ ajouter";
-      }finally{
-        setTimeout(()=>{ btn.disabled=false; btn.textContent="+ ajouter"; }, 1200);
+        btn.disabled=false; alert("Erreur: "+err.message);
       }
     });
 
-    // Soumission principale
+    // Soumission
     $("submit").addEventListener("click", async ()=>{
-      hideMsg();
+      hideMsgs();
+      $("submit").disabled=true;
+      const baseLabel = "+ Ajouter";
+      $("submit").textContent = "Ajout en cours…";
+
       const type=$("type").value; const p={ type };
 
-      // helpers
-      const need = v => v!=null && String(v).trim()!=="";
-
-      if(type==="Achat stock"){
-        if(!need($("montant-achat").value)) return showErr("Montant requis.");
-        p.item=$("item").value; p.dateISO=$("date-achat").value; p.montant=$("montant-achat").value; p.fournisseur=$("fournisseur").value;
-
-      } else if(type==="Frais annexes"){
-        if(!need($("montant-frais").value)) return showErr("Montant requis.");
-        p.fraisDesc=$("frais-desc").value; p.dateISO=$("date-frais").value; p.montant=$("montant-frais").value; p.categorie=$("categorie").value;
-
-      } else if(type==="Vente/Cashout"){
-        if(!need($("montant-vente").value)) return showErr("Montant requis.");
-        p.dateISO=$("date-vente").value; p.montant=$("montant-vente").value; p.compteVinted=$("compte-vinted").value;
-
-      } else if(type==="Abonnement (mensuel)"){
-        if(!need($("abo-montant").value)) return showErr("Montant requis.");
-        p.aboNom=$("abo-nom").value; p.montant=$("abo-montant").value; p.aboJour=$("abo-jour").value; p.categorie=$("abo-categorie").value;
-        p.aboActif = !!$("abo-actif").checked; // ✅ si décoché => false -> "Non" côté Apps Script
-
-      } else { // Paiement
-        if(!need($("montant-paiement").value)) return showErr("Montant requis.");
-        p.dateISO=$("date-paiement").value; p.montant=$("montant-paiement").value;
-      }
+      function need(v){ return v!=null && String(v).trim()!==""; }
 
       try{
-        $("submit").disabled=true; $("submit").textContent="⏳ Ajout en cours…";
-        const params = new URLSearchParams(); Object.entries(p).forEach(([k,v])=>params.append(k,String(v)));
+        if(type==="Achat stock"){
+          if(!need($("montant-achat").value)) throw new Error("Montant requis.");
+          p.item=$("item").value; p.dateISO=$("date-achat-iso").value; p.montant=$("montant-achat").value; p.fournisseur=$("fournisseur").value;
+        } else if(type==="Frais annexes"){
+          if(!need($("montant-frais").value)) throw new Error("Montant requis.");
+          p.fraisDesc=$("frais-desc").value; p.dateISO=$("date-frais-iso").value; p.montant=$("montant-frais").value; p.categorie=$("categorie").value;
+        } else if(type==="Vente/Cashout"){
+          if(!need($("montant-vente").value)) throw new Error("Montant requis.");
+          p.dateISO=$("date-vente-iso").value; p.montant=$("montant-vente").value; p.compteVinted=$("compte-vinted").value;
+        } else if(type==="Abonnement (mensuel)"){
+          if(!need($("abo-montant").value)) throw new Error("Montant requis.");
+          p.aboNom=$("abo-nom").value; p.montant=$("abo-montant").value; p.aboJour=$("abo-jour").value; p.categorie=$("abo-categorie").value;
+          p.aboActif=$("abo-actif").checked; // ✅ envoie true/false -> Apps Script fait Oui/Non
+        } else { // Paiement
+          if(!need($("montant-paiement").value)) throw new Error("Montant requis.");
+          p.dateISO=$("date-paiement-iso").value; p.montant=$("montant-paiement").value;
+        }
+
+        const params = new URLSearchParams();
+        Object.entries(p).forEach(([k,v])=>params.append(k, String(v)));
+
         const r = await fetch(ENDPOINT, {
           method:"POST",
           headers:{ "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8" },
           body: params.toString()
         });
         const json = await r.json().catch(()=>({}));
-        if(!r.ok || json.ok===false) throw new Error(json.error||("HTTP "+r.status));
+        if(!r.ok||json.ok===false) throw new Error(json.error||("HTTP "+r.status));
 
-        showOk("Ajouté ✅");
-        // clear minimal
-        if(type==="Achat stock"){ $("item").value=""; $("montant-achat").value=""; }
-        else if(type==="Frais annexes"){ $("frais-desc").value=""; $("montant-frais").value=""; }
-        else if(type==="Vente/Cashout"){ $("montant-vente").value=""; }
-        else if(type==="Abonnement (mensuel)"){ $("abo-nom").value=""; $("abo-montant").value=""; }
-        else { $("montant-paiement").value=""; }
-
+        $("feedback").textContent="Ajouté ✅";
+        $("feedback").style.display="block";
       }catch(e){
-        showErr("Erreur: "+e.message);
+        $("error").textContent="Erreur: "+e.message;
+        $("error").style.display="block";
       }finally{
-        $("submit").disabled=false; $("submit").textContent="➕ Ajouter";
+        $("submit").disabled=false;
+        $("submit").textContent = baseLabel;
       }
     });
 
-    function showOk(t){ const m=$("feedback"); m.textContent=t; m.className="msg ok"; m.style.display="block"; $("error").style.display="none"; }
-    function showErr(t){ const m=$("error"); m.textContent=t; m.className="msg err"; m.style.display="block"; $("feedback").style.display="none"; }
-
-    // Init
+    // Start
     switchTypeUI();
     loadLists();
   </script>
