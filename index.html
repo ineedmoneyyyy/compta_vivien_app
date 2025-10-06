@@ -1,204 +1,330 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=390, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>I Need Resell</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="apple-touch-icon" href="logo1.png" />
   <style>
-    :root {
-      --bg: #f5f5fa;
-      --purple: #7b5cff;
-      --pad: 16px;
+    :root{
+      --primary:#6f57d3; --bg:#f2f2f7; --fg:#111; --border:#d9d9de;
+      --r:14px; --pad:18px; --maxw:420px;
     }
-    body {
-      font-family: "Inter", sans-serif;
-      background: var(--bg);
-      margin: 0;
-      padding: var(--pad);
+    html,body{height:100%;}
+    body{
+      margin:0; padding:0; background:var(--bg); color:var(--fg);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; 
+      -webkit-text-size-adjust:100%;
     }
-
-    .header {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    /* === GIF arrondi === */
-    .header-gif-frame {
-      width: 100%;
-      height: 65px;
-      border-radius: 18px;
-      overflow: hidden;
-      background: transparent;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    .wrap{width:100%; max-width:var(--maxw); margin:0 auto; padding:0 var(--pad) 24px;}
+    /* Header GIF — affiché en entier, bords arrondis, pas de recadrage */
+    .hero{
+      display:block;
+      width:100%;
+      height:auto;              /* conserve le ratio → pas de coupe */
+      border-radius:18px;       /* bords arrondis à gauche/droite */
+      margin:14px auto 10px;
+      background:transparent;
     }
 
-    .header-gif {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 18px;
+    h1{font-size:24px; font-weight:800; margin:10px 0 6px;}
+    label{display:block; font-size:16px; font-weight:800; margin:14px 0 8px;}
+    input,select{
+      width:100%; box-sizing:border-box; background:#fff; border:1px solid var(--border);
+      border-radius:var(--r); padding:14px 16px; font-size:16px; min-height:48px; outline:none;
+      -webkit-appearance:none; appearance:none;
     }
+    input:focus,select:focus{ border-color:#c7b8ff; box-shadow:0 0 0 3px rgba(111,87,211,.15); }
 
-    h2 {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
+    /* rangée 2 colonnes avec espace entre les champs (ne se touchent pas) */
+    .row{ display:flex; gap:14px; }
+    .row .field{ flex:1; min-width:0; display:flex; flex-direction:column; }
 
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
+    /* chevrons bleus pour indiquer une liste */
+    .select-wrap{ position:relative; }
+    .select-wrap::after{
+      content:""; position:absolute; right:14px; top:50%; width:14px; height:14px; transform:translateY(-50%);
+      pointer-events:none;
+      background: no-repeat center/contain url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
     }
+    /* petit texte d’aide */
+    .hint{ font-size:13px; color:#666; margin-top:6px; }
 
-    label {
-      font-weight: 600;
+    /* bouton principal avec états */
+    .actions{ padding:14px 0 calc(env(safe-area-inset-bottom,0) + 14px); }
+    #submit{
+      width:100%; height:60px; border:none; border-radius:16px; background:var(--primary); color:#fff;
+      font-size:20px; font-weight:800; letter-spacing:.2px; box-shadow:0 10px 24px rgba(111,87,211,.25);
+      display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer;
     }
+    #submit:disabled{ opacity:.6; cursor:default; }
+    .spinner{ width:18px; height:18px; border-radius:50%; border:3px solid rgba(255,255,255,.35); border-top-color:#fff; animation:spin .8s linear infinite; }
+    @keyframes spin{ to{ transform:rotate(360deg); } }
 
-    input, select {
-      width: 100%;
-      padding: 10px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-      outline: none;
-    }
+    /* cases spécifiques par type */
+    .bloc{ display:none; }
+    .bloc.active{ display:block; }
 
-    input:focus, select:focus {
-      border-color: var(--purple);
-    }
+    /* switch Actif plus compact */
+    .switchline{ display:flex; align-items:center; gap:8px; margin-top:6px; }
+    .switchline input[type="checkbox"]{ transform:scale(.9); width:22px; height:22px; }
 
-    .row {
-      display: flex;
-      gap: 10px;
-    }
-
-    .row > div {
-      flex: 1;
-    }
-
-    button {
-      background: var(--purple);
-      color: white;
-      font-weight: 600;
-      border: none;
-      border-radius: 14px;
-      padding: 16px;
-      font-size: 18px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    button:disabled {
-      background: #c3b4ff;
-    }
-
-    .loader {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid white;
-      border-radius: 50%;
-      width: 16px;
-      height: 16px;
-      animation: spin 0.9s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    small {
-      font-size: 13px;
-      color: #666;
-      margin-top: -8px;
-    }
-
-    @media (max-width: 600px) {
-      .row { flex-direction: column; }
-    }
+    @media (max-width:420px){ .row{flex-direction:row;} } /* on garde l’espace via gap */
+    @media (max-width:360px){ .row{flex-direction:column;} } /* si très petit écran, passe en pile */
   </style>
 </head>
 <body>
+  <div class="wrap">
+    <!-- GIF ENTIER + BORDS ARRONDIS -->
+    <img src="go.gif" alt="I Need Resell" class="hero" />
 
-  <div class="header">
-    <div class="header-gif-frame">
-      <img src="go.gif" alt="I Need Resell" class="header-gif">
-    </div>
+    <main>
+      <label>Type de transaction</label>
+      <div class="select-wrap">
+        <select id="type">
+          <option>Achat stock</option>
+          <option>Frais annexes</option>
+          <option>Vente/Cashout</option>
+          <option>Abonnement (mensuel)</option>
+          <option>Paiement</option>
+        </select>
+      </div>
+
+      <!-- ACHAT -->
+      <div id="b-achat" class="bloc active">
+        <label>Item / Référence</label>
+        <input id="a-item" placeholder="Ex: 100 Jeans Levi's 501">
+
+        <div class="row">
+          <div class="field">
+            <label>Date</label>
+            <input id="a-date" type="date">
+          </div>
+          <div class="field">
+            <label>Montant (€)</label>
+            <input id="a-montant" inputmode="decimal" placeholder="ex: 79,90">
+            <div class="hint">Décimales : virgule ou point</div>
+          </div>
+        </div>
+
+        <label>Fournisseur</label>
+        <div class="select-wrap"><select id="a-fs"></select></div>
+        <div class="hint"><button class="link-add" data-k="fournisseur" type="button" style="background:none;border:none;color:#6f57d3;text-decoration:underline;padding:0;cursor:pointer">+ ajouter</button> <span id="st-fournisseur" class="hint"></span></div>
+      </div>
+
+      <!-- FRAIS -->
+      <div id="b-frais" class="bloc">
+        <label>Description du frais</label>
+        <input id="f-desc" placeholder="Ex: URSSAF, pochettes, etc.">
+        <div class="row">
+          <div class="field">
+            <label>Date</label>
+            <input id="f-date" type="date">
+          </div>
+          <div class="field">
+            <label>Montant (€)</label>
+            <input id="f-montant" inputmode="decimal" placeholder="ex: 12,50">
+            <div class="hint">Décimales : virgule ou point</div>
+          </div>
+        </div>
+        <label>Catégorie</label>
+        <div class="select-wrap"><select id="f-cat"></select></div>
+        <div class="hint"><button class="link-add" data-k="categorie" type="button" style="background:none;border:none;color:#6f57d3;text-decoration:underline;padding:0;cursor:pointer">+ ajouter</button> <span id="st-categorie" class="hint"></span></div>
+      </div>
+
+      <!-- VENTE -->
+      <div id="b-vente" class="bloc">
+        <div class="row">
+          <div class="field">
+            <label>Date</label>
+            <input id="v-date" type="date">
+          </div>
+          <div class="field">
+            <label>Montant (€)</label>
+            <input id="v-montant" inputmode="decimal" placeholder="ex: 45">
+            <div class="hint">Décimales : virgule ou point</div>
+          </div>
+        </div>
+        <label>Compte Vinted</label>
+        <div class="select-wrap"><select id="v-compte"></select></div>
+        <div class="hint"><button class="link-add" data-k="compteVinted" type="button" style="background:none;border:none;color:#6f57d3;text-decoration:underline;padding:0;cursor:pointer">+ ajouter</button> <span id="st-compteVinted" class="hint"></span></div>
+      </div>
+
+      <!-- ABONNEMENT -->
+      <div id="b-abo" class="bloc">
+        <label>Nom de l’abonnement</label>
+        <input id="ab-nom" placeholder="Ex: ChatGPT Plus">
+        <div class="row">
+          <div class="field">
+            <label>Montant (€)</label>
+            <input id="ab-montant" inputmode="decimal" placeholder="ex: 20">
+            <div class="hint">Décimales : virgule ou point</div>
+          </div>
+          <div class="field">
+            <label>Jour du mois</label>
+            <input id="ab-jour" type="number" min="1" max="31" value="5">
+          </div>
+        </div>
+        <label>Catégorie</label>
+        <div class="select-wrap"><select id="ab-cat"></select></div>
+
+        <div class="switchline">
+          <input id="ab-actif" type="checkbox" checked>
+          <label for="ab-actif" style="margin:0;">Actif</label>
+        </div>
+      </div>
+
+      <!-- PAIEMENT -->
+      <div id="b-pay" class="bloc">
+        <div class="row">
+          <div class="field">
+            <label>Date</label>
+            <input id="p-date" type="date">
+          </div>
+          <div class="field">
+            <label>Montant (€)</label>
+            <input id="p-montant" inputmode="decimal" placeholder="ex: 1000">
+            <div class="hint">Décimales : virgule ou point</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="submit"><span>+ Ajouter</span></button>
+      </div>
+    </main>
   </div>
 
-  <form id="transactionForm">
-    <div>
-      <label for="type">Type de transaction</label>
-      <select id="type" name="type">
-        <option value="Achat stock">Achat stock</option>
-        <option value="Vente cashout">Vente cashout</option>
-        <option value="Frais annexes">Frais annexes</option>
-        <option value="Abonnement mensuel">Abonnement mensuel</option>
-        <option value="Paiement">Paiement</option>
-      </select>
-    </div>
-
-    <div>
-      <label for="item">Item / Référence</label>
-      <input type="text" id="item" placeholder="Ex: 100 Jeans Levi's 501">
-    </div>
-
-    <div class="row">
-      <div>
-        <label for="date">Date</label>
-        <input type="date" id="date">
-      </div>
-      <div>
-        <label for="montant">Montant (€)</label>
-        <input type="number" id="montant" placeholder="ex: 79,90" step="0.01">
-        <small>Décimales : virgule ou point</small>
-      </div>
-    </div>
-
-    <div>
-      <label for="fournisseur">Fournisseur</label>
-      <select id="fournisseur">
-        <option>Vinted</option>
-      </select>
-      <a href="#" id="ajouterFournisseur">+ ajouter</a>
-    </div>
-
-    <button id="submitBtn" type="submit">
-      <span>+ Ajouter</span>
-    </button>
-  </form>
-
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbzF3P3AE1hcHuyFRZLnBS9eKtu0nz1jVyLxv8Ej0CbA78G-_ssXd2e-I9zgk58qqke46w/exec";
+    // === CONFIG ENDPOINT (ton Apps Script) ===
+    const ENDPOINT = "https://script.google.com/macros/s/AKfycbzF3P3AE1hcHuyFRZLnBS9eKtu0nz1jVyLxv8Ej0CbA78G-_ssXd2e-I9zgk58qqke46w/exec";
 
-    const form = document.getElementById("transactionForm");
-    const button = document.getElementById("submitBtn");
+    const $ = s => document.querySelector(s);
 
-    form.addEventListener("submit", async (e) => {
+    // blocs
+    const blocs = {
+      "Achat stock": "#b-achat",
+      "Frais annexes": "#b-frais",
+      "Vente/Cashout": "#b-vente",
+      "Abonnement (mensuel)": "#b-abo",
+      "Paiement": "#b-pay"
+    };
+    function switchType(){
+      document.querySelectorAll(".bloc").forEach(b => b.classList.remove("active"));
+      const sel = $("#type").value;
+      document.querySelector(blocs[sel]).classList.add("active");
+    }
+    $("#type").addEventListener("change", switchType);
+
+    // met aujourd'hui par défaut sur tous les date
+    function todayISO(){
+      const t = new Date(), y=t.getFullYear(), m=String(t.getMonth()+1).padStart(2,"0"), d=String(t.getDate()).padStart(2,"0");
+      return `${y}-${m}-${d}`;
+    }
+    ["#a-date","#f-date","#v-date","#p-date"].forEach(id => { const el=$(id); if(el) el.value = todayISO(); });
+
+    // remplir un <select>
+    function fill(sel, arr){ sel.innerHTML = (arr||[]).map(v=>`<option>${v}</option>`).join(""); }
+
+    // charge les listes
+    async function loadLists(){
+      try{
+        const r = await fetch(ENDPOINT+"?api=lists");
+        const {data} = await r.json();
+        fill($("#a-fs"), data.fournisseurs);
+        fill($("#f-cat"), data.categories);
+        fill($("#v-compte"), data.comptesVinted);
+        fill($("#ab-cat"), data.categories);
+      }catch(e){ console.warn("Listes", e); }
+    }
+    loadLists();
+
+    // + ajouter (Paramètres) avec petits états "en cours / ok"
+    document.body.addEventListener("click", async (e)=>{
+      if(!e.target.classList.contains("link-add")) return;
+      const kind = e.target.getAttribute("data-k");
+      const labelMap = {fournisseur:"Nouveau fournisseur", categorie:"Nouvelle catégorie", compteVinted:"Nouveau compte Vinted"};
+      const val = prompt(labelMap[kind]+" :");
+      if(!val) return;
+      const status = $("#st-"+kind); if(status) status.textContent = "• Ajout en cours…";
+      try{
+        const body = new URLSearchParams();
+        body.append("action","addParam");
+        body.append("kind",kind);
+        body.append("value",val);
+        const r = await fetch(ENDPOINT,{ method:"POST", headers:{ "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8" }, body});
+        const json = await r.json();
+        if(!json.ok) throw new Error(json.error||"Erreur ajout");
+        const d = json.data||{};
+        if(kind==="fournisseur") fill($("#a-fs"), d.fournisseurs);
+        if(kind==="categorie"){ fill($("#f-cat"), d.categories); fill($("#ab-cat"), d.categories); }
+        if(kind==="compteVinted") fill($("#v-compte"), d.comptesVinted);
+        if(status) status.textContent = "• Ajouté ✅";
+        setTimeout(()=>{ if(status) status.textContent=""; }, 1500);
+      }catch(err){
+        if(status) status.textContent = "• Erreur ❌";
+        alert("Erreur: " + err.message);
+      }
+    });
+
+    // normalise montant (virgule ou point)
+    const money = v => String(v||"").replace(",", ".").trim();
+
+    // soumission
+    $("#submit").addEventListener("click", async (e)=>{
       e.preventDefault();
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
-      button.disabled = true;
-      button.innerHTML = '<div class="loader"></div><span>Ajout en cours...</span>';
+      const btn = $("#submit");
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span><span>Ajout en cours…</span>';
 
-      try {
-        await fetch(scriptURL, { method: "POST", body: JSON.stringify(data) });
-        button.innerHTML = "✅ Ajouté";
-      } catch (error) {
-        button.innerHTML = "❌ Erreur";
+      const type = $("#type").value;
+      const p = { type };
+
+      if(type==="Achat stock"){
+        p.item = $("#a-item").value;
+        p.dateISO = $("#a-date").value;
+        p.montant = money($("#a-montant").value);
+        p.fournisseur = $("#a-fs").value;
+
+      }else if(type==="Frais annexes"){
+        p.fraisDesc = $("#f-desc").value;
+        p.dateISO   = $("#f-date").value;
+        p.montant   = money($("#f-montant").value);
+        p.categorie = $("#f-cat").value;
+
+      }else if(type==="Vente/Cashout"){
+        p.dateISO      = $("#v-date").value;
+        p.montant      = money($("#v-montant").value);
+        p.compteVinted = $("#v-compte").value;
+
+      }else if(type==="Abonnement (mensuel)"){
+        p.aboNom   = $("#ab-nom").value;
+        p.montant  = money($("#ab-montant").value);
+        p.aboJour  = $("#ab-jour").value;
+        p.categorie= $("#ab-cat").value;
+        p.aboActif = $("#ab-actif").checked; // => Apps Script convertit bien en Oui/Non
+      }else{ // Paiement
+        p.dateISO  = $("#p-date").value;
+        p.montant  = money($("#p-montant").value);
       }
 
-      setTimeout(() => {
-        button.disabled = false;
-        button.innerHTML = "<span>+ Ajouter</span>";
-      }, 1800);
+      try{
+        const body = new URLSearchParams(); Object.entries(p).forEach(([k,v])=>body.append(k, String(v)));
+        const r = await fetch(ENDPOINT, { method:"POST", headers:{ "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8" }, body });
+        const j = await r.json().catch(()=>({}));
+        if(!r.ok || j.ok===false) throw new Error(j.error||("HTTP "+r.status));
+        btn.innerHTML = "✅ Ajouté";
+      }catch(err){
+        btn.innerHTML = "❌ Erreur";
+        alert("Erreur: " + err.message);
+      }finally{
+        setTimeout(()=>{ btn.disabled=false; btn.innerHTML = "<span>+ Ajouter</span>"; }, 1500);
+      }
     });
+
+    switchType();
   </script>
 </body>
 </html>
