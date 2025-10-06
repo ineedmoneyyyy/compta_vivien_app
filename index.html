@@ -8,7 +8,12 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="apple-touch-icon" href="logo1.png" />
   <style>
-    :root{ --primary:#6f57d3; --bg:#f2f2f7; --fg:#111; --border:#d9d9de; --r:14px; --pad:18px; --maxw:390px; }
+    :root{
+      --primary:#6f57d3; --bg:#f2f2f7; --fg:#111; --border:#d9d9de;
+      --r:14px; --pad:18px; --maxw:390px;
+      --gifH:56px;               /* hauteur de la barre gif */
+      --gifR:9999px;             /* ARRONDI EXTRÊME (pilule) */
+    }
     html,body{height:100%; overflow:hidden;}
     body{
       margin:0; padding:0; background:var(--bg); color:var(--fg);
@@ -20,27 +25,26 @@
     }
     .wrap{ width:100%; max-width:var(--maxw); margin:0 auto; box-sizing:border-box; padding:0 var(--pad); }
 
-    /* ---------- HEADER : ARRONDIS GARANTIS ---------- */
+    /* HEADER : arrondi pilule très marqué */
     .header{ width:100%; background:var(--bg); }
     .header .wrap{ padding:10px var(--pad) 4px; }
     .gif-rail{
       width:100%;
-      height:56px;                 /* même taille visuelle */
-      border-radius:22px;          /* arrondi visible */
-      overflow:hidden;             /* coupe bien dans les coins */
-      clip-path: inset(0 round 22px);            /* renfort multi-moteurs */
-      -webkit-mask-image: -webkit-radial-gradient(white, black); /* renfort iOS */
+      height:var(--gifH);
+      border-radius:var(--gifR);
+      overflow:hidden;
+      clip-path: inset(0 round var(--gifR));
+      -webkit-mask-image: -webkit-radial-gradient(white, black);
       display:flex; align-items:center; justify-content:center;
       background:transparent;
     }
     .gif-rail img{
       width:100%; height:100%;
-      object-fit:contain;          /* pas de rognage du GIF */
+      object-fit:contain;
       display:block;
-      border-radius:inherit;       /* double sécurité */
+      border-radius:inherit;
     }
 
-    /* ---------- CONTENU ---------- */
     .content{ flex:1; min-height:0; display:flex; }
     .content .wrap{ padding:10px var(--pad) 12px; display:flex; flex-direction:column; gap:14px; overflow:auto; }
     label{ display:block; font-size:18px; font-weight:700; margin:6px 0 8px; }
@@ -49,7 +53,6 @@
       padding:14px 16px; font-size:18px; min-height:52px; outline:none;
     }
     input:focus,select:focus{ border-color:#c7b8ff; box-shadow:0 0 0 3px rgba(111,87,211,.15); }
-    /* chevrons bleus sur les listes */
     select{
       appearance:none; -webkit-appearance:none;
       background-image:
@@ -66,7 +69,6 @@
     .subline{ display:flex; justify-content:flex-end; margin-top:6px; }
     .add-link{ background:none; border:none; color:var(--primary); font-size:15px; text-decoration:underline; padding:0; cursor:pointer; }
     .hidden{ display:none !important; }
-
     .actions{
       padding:10px 0 calc(env(safe-area-inset-bottom,0) + 14px);
       background:linear-gradient(180deg, rgba(242,242,247,0) 0%, var(--bg) 50%);
