@@ -1,114 +1,276 @@
-// 👇 Mets ici l’URL du déploiement Web App Apps Script (celui du projet "Compta perso")
-const ENDPOINT = "https://script.google.com/macros/s/TON_ID_EXEC/exec";
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>I Need Resell – Saisie</title>
+  <meta name="viewport" content="width=390, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <link rel="apple-touch-icon" href="logo1.png" />
+  <style>
+    :root{ --primary:#6f57d3; --bg:#f2f2f7; --fg:#111; --border:#d9d9de; --r:14px; --pad:18px; --maxw:390px; }
+    html,body{height:100%; overflow:hidden;}
+    body{ margin:0; padding:0; background:var(--bg); color:var(--fg);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      font-size:18px; line-height:1.35; -webkit-text-size-adjust:100%; overscroll-behavior:none; }
+    .screen{ position:fixed; inset:0; display:flex; flex-direction:column;
+      padding:calc(env(safe-area-inset-top,0)) env(safe-area-inset-right,0) 0 env(safe-area-inset-left,0); }
+    .wrap{ width:100%; max-width:var(--maxw); margin:0 auto; box-sizing:border-box; padding:0 var(--pad); }
+    .header{ width:100%; background:var(--bg); }
+    .header .wrap{ padding:10px var(--pad) 4px; }
+    .brand{ display:flex; align-items:center; gap:10px; }
+    .brand img{ width:28px; height:28px; border-radius:6px; }
+    .brand b{ font-weight:800; letter-spacing:.3px; }
+    .header-gif{ width:100%; height:auto; border-radius:12px; display:block; margin:10px 0 0; }
+    .content{ flex:1; min-height:0; display:flex; }
+    .content .wrap{ padding:10px var(--pad) 12px; display:flex; flex-direction:column; gap:14px; }
+    label{ display:block; font-size:18px; font-weight:700; margin:6px 0 8px; }
+    input, select{ width:100%; box-sizing:border-box; background:#fff; border:1px solid var(--border); border-radius:var(--r);
+      padding:14px 16px; font-size:18px; min-height:52px; outline:none; }
+    input:focus,select:focus{ border-color:#c7b8ff; box-shadow:0 0 0 3px rgba(111,87,211,.15); }
+    .row{ display:flex; gap:22px; margin-bottom:8px; }
+    .row .field{ flex:1; min-width:0; display:flex; flex-direction:column; }
+    .subline{ display:flex; justify-content:flex-end; margin-top:6px; }
+    .add-link{ background:none; border:none; color:var(--primary); font-size:15px; text-decoration:underline; padding:0; cursor:pointer; }
+    .hidden{ display:none !important; }
+    .actions{ padding:10px 0 calc(env(safe-area-inset-bottom,0) + 14px);
+      background:linear-gradient(180deg, rgba(242,242,247,0) 0%, var(--bg) 50%); }
+    .actions .wrap{ padding-top:0; }
+    #submit{ width:100%; height:60px; border:none; border-radius:16px; background:var(--primary); color:#fff;
+      font-size:20px; font-weight:800; letter-spacing:.2px; box-shadow:0 10px 24px rgba(111,87,211,.25); cursor:pointer; touch-action:manipulation; }
+    #submit:disabled{ opacity:.6; cursor:default; }
+    .msg{ font-size:16px; color:#0a8a0a; margin-top:6px; }
+    .err{ font-size:16px; color:#c62828; margin-top:6px; }
+  </style>
+</head>
+<body>
+  <div class="screen">
+    <div class="header">
+      <div class="wrap">
+        <div class="brand"><img src="logo1.png" alt=""><b>I Need Resell</b></div>
+        <img src="go.gif" alt="Header" class="header-gif">
+      </div>
+    </div>
 
-// ————————————————————————————————————————
+    <main class="content">
+      <div class="wrap">
+        <label>Type de transaction</label>
+        <select id="type">
+          <option>Achat stock</option>
+          <option>Frais annexes</option>
+          <option>Vente/Cashout</option>
+          <option>Abonnement (mensuel)</option>
+          <option>Paiement</option>
+        </select>
 
-const $ = id => document.getElementById(id);
-const blocs = {
-  "Achat stock":"bloc-achat",
-  "Frais annexes":"bloc-frais",
-  "Vente/Cashout":"bloc-vente",
-  "Abonnement (mensuel)":"bloc-abo",
-  "Paiement":"bloc-paiement"
-};
+        <!-- ACHAT -->
+        <div id="bloc-achat" class="bloc">
+          <label>Item / Référence</label>
+          <input id="item" type="text" placeholder="Ex: 100 Jeans Levi's 501">
+          <div class="row">
+            <div class="field">
+              <label>Date</label>
+              <input id="date-achat" type="date">
+            </div>
+            <div class="field">
+              <label>Montant (€)</label>
+              <input id="montant-achat" type="text" inputmode="decimal" placeholder="ex: 79,90">
+              <div style="color:#666; font-size:14px; margin-top:6px;">Décimales : virgule ou point</div>
+            </div>
+          </div>
+          <label>Fournisseur</label>
+          <select id="fournisseur"></select>
+          <div class="subline"><button class="add-link" type="button" data-kind="fournisseur">+ ajouter</button></div>
+        </div>
 
-function switchTypeUI(){
-  const t = $("type").value;
-  Object.values(blocs).forEach(id=>$(id).classList.add("hidden"));
-  $(blocs[t]).classList.remove("hidden");
-}
-$("type").addEventListener("change", switchTypeUI);
+        <!-- FRAIS -->
+        <div id="bloc-frais" class="bloc hidden">
+          <label>Description du frais</label>
+          <input id="frais-desc" type="text" placeholder="Ex: Pochettes, URSSAF, etc.">
+          <div class="row">
+            <div class="field">
+              <label>Date</label>
+              <input id="date-frais" type="date">
+            </div>
+            <div class="field">
+              <label>Montant (€)</label>
+              <input id="montant-frais" type="text" inputmode="decimal" placeholder="ex: 12,50">
+            </div>
+          </div>
+          <label>Catégorie</label>
+          <select id="categorie"></select>
+          <div class="subline"><button class="add-link" type="button" data-kind="categorie">+ ajouter</button></div>
+        </div>
 
-function fillSelect(sel, arr){ sel.innerHTML = ""; (arr||[]).forEach(v=>{ const o=document.createElement("option"); o.value=o.textContent=v; sel.appendChild(o); }); }
+        <!-- VENTE -->
+        <div id="bloc-vente" class="bloc hidden">
+          <div class="row">
+            <div class="field">
+              <label>Date</label>
+              <input id="date-vente" type="date">
+            </div>
+            <div class="field">
+              <label>Montant (€)</label>
+              <input id="montant-vente" type="text" inputmode="decimal" placeholder="ex: 45">
+            </div>
+          </div>
+          <label>Compte Vinted</label>
+          <select id="compte-vinted"></select>
+          <div class="subline"><button class="add-link" type="button" data-kind="compteVinted">+ ajouter</button></div>
+        </div>
 
-async function loadLists(){
-  try{
-    const r = await fetch(ENDPOINT + "?api=lists");
-    const json = await r.json();
-    const d = json.data || {};
-    fillSelect($("fournisseur"), d.fournisseurs);
-    fillSelect($("categorie"), d.categories);
-    fillSelect($("compte-vinted"), d.comptesVinted);
-    fillSelect($("abo-categorie"), d.categories);
-  }catch(e){
-    $("error").textContent = "Erreur listes: " + e.message;
-    $("error").style.display = "block";
-  }
-}
+        <!-- ABONNEMENT -->
+        <div id="bloc-abo" class="bloc hidden">
+          <label>Nom de l’abonnement</label>
+          <input id="abo-nom" type="text" placeholder="Ex: ChatGPT Plus">
+          <div class="row">
+            <div class="field">
+              <label>Montant (€)</label>
+              <input id="abo-montant" type="text" inputmode="decimal" placeholder="ex: 20">
+            </div>
+            <div class="field">
+              <label>Jour du mois</label>
+              <input id="abo-jour" type="number" min="1" max="31" value="5">
+            </div>
+          </div>
+          <label>Catégorie</label>
+          <select id="abo-categorie"></select>
+          <div class="subline"><button class="add-link" type="button" data-kind="categorie">+ ajouter</button></div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+            <input id="abo-actif" type="checkbox" checked style="width:22px;height:22px;">
+            <label for="abo-actif" style="margin:0;font-weight:600;">Actif (Oui)</label>
+          </div>
+        </div>
 
-// + ajouter (Parametres)
-document.body.addEventListener("click", async (e)=>{
-  if(!e.target.matches(".add-link")) return;
-  const kind = e.target.getAttribute("data-kind");
-  const labels = { categorie:"Nouvelle catégorie", fournisseur:"Nouveau fournisseur", compteVinted:"Nouveau compte Vinted" };
-  const val = prompt((labels[kind]||"Nouvelle valeur")+" :");
-  if(!val) return;
+        <!-- PAIEMENT -->
+        <div id="bloc-paiement" class="bloc hidden">
+          <div class="row">
+            <div class="field">
+              <label>Date</label>
+              <input id="date-paiement" type="date">
+            </div>
+            <div class="field">
+              <label>Montant (€)</label>
+              <input id="montant-paiement" type="text" inputmode="decimal" placeholder="ex: 1000">
+            </div>
+          </div>
+        </div>
 
-  try{
-    const body = new URLSearchParams({ action:"addParam", kind, value:val }).toString();
-    const r = await fetch(ENDPOINT, {
-      method:"POST", headers:{ "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8" }, body
+        <div id="feedback" class="msg" style="display:none;"></div>
+        <div id="error" class="err" style="display:none;"></div>
+      </div>
+    </main>
+
+    <div class="actions">
+      <div class="wrap"><button id="submit">➕ Ajouter</button></div>
+    </div>
+  </div>
+
+  <script>
+    // 🔗 METS ICI l’URL /exec de TON Apps Script "Compta perso"
+    const ENDPOINT = "https://script.google.com/macros/s/AKfycbzF3P3AE1hcHuyFRZLnBS9eKtu0nz1jVyLxv8Ej0CbA78G-_ssXd2e-I9zgk58qqke46w/exec";
+
+    const $ = id => document.getElementById(id);
+    const blocs = {
+      "Achat stock":"bloc-achat",
+      "Frais annexes":"bloc-frais",
+      "Vente/Cashout":"bloc-vente",
+      "Abonnement (mensuel)":"bloc-abo",
+      "Paiement":"bloc-paiement"
+    };
+
+    function switchTypeUI(){
+      const t=$("type").value;
+      Object.values(blocs).forEach(id=>$(id).classList.add("hidden"));
+      $(blocs[t]).classList.remove("hidden");
+    }
+    $("type").addEventListener("change", switchTypeUI);
+
+    function fillSelect(sel, arr){ sel.innerHTML=""; (arr||[]).forEach(v=>{const o=document.createElement("option"); o.value=o.textContent=v; sel.appendChild(o);}); }
+    async function loadLists(){
+      try{
+        const r=await fetch(ENDPOINT+"?api=lists");
+        const {data}=await r.json();
+        fillSelect($("fournisseur"), data.fournisseurs);
+        fillSelect($("categorie"), data.categories);
+        fillSelect($("compte-vinted"), data.comptesVinted);
+        fillSelect($("abo-categorie"), data.categories);
+      }catch(e){
+        $("error").textContent="Erreur listes: "+e.message; $("error").style.display="block";
+      }
+    }
+
+    document.body.addEventListener("click", async (e)=>{
+      if(!e.target.matches(".add-link")) return;
+      const kind=e.target.getAttribute("data-kind");
+      const labels={categorie:"Nouvelle catégorie",fournisseur:"Nouveau fournisseur",compteVinted:"Nouveau compte Vinted"};
+      const val=prompt((labels[kind]||"Nouvelle valeur")+" :");
+      if(!val) return;
+
+      try{
+        const body = new URLSearchParams({ action:"addParam", kind, value:val }).toString();
+        const r = await fetch(ENDPOINT, {
+          method:"POST",
+          headers:{ "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8" },
+          body
+        });
+        const json = await r.json();
+        if(!json.ok) throw new Error(json.error||"Erreur ajout paramètre");
+        const d=json.data||{};
+        if(kind==='fournisseur') fillSelect($("fournisseur"), d.fournisseurs||[]);
+        if(kind==='categorie'){ fillSelect($("categorie"), d.categories||[]); fillSelect($("abo-categorie"), d.categories||[]); }
+        if(kind==='compteVinted') fillSelect($("compte-vinted"), d.comptesVinted||[]);
+      }catch(err){ alert("Erreur: "+err.message); }
     });
-    const json = await r.json();
-    if(!json.ok) throw new Error(json.error || "Erreur ajout paramètre");
-    const d = json.data || {};
-    if(kind==="fournisseur") fillSelect($("fournisseur"), d.fournisseurs||[]);
-    if(kind==="categorie"){ fillSelect($("categorie"), d.categories||[]); fillSelect($("abo-categorie"), d.categories||[]); }
-    if(kind==="compteVinted") fillSelect($("compte-vinted"), d.comptesVinted||[]);
-  }catch(err){ alert("Erreur: " + err.message); }
-});
 
-(function setToday(){
-  const t=new Date(), yyyy=t.getFullYear(), mm=String(t.getMonth()+1).padStart(2,"0"), dd=String(t.getDate()).padStart(2,"0");
-  $("date-achat").value=`${yyyy}-${mm}-${dd}`;
-  $("date-frais").value=`${yyyy}-${mm}-${dd}`;
-  $("date-vente").value=`${yyyy}-${mm}-${dd}`;
-  $("date-paiement").value=`${yyyy}-${mm}-${dd}`;
-})();
+    (function setToday(){
+      const t=new Date(), yyyy=t.getFullYear(), mm=String(t.getMonth()+1).padStart(2,"0"), dd=String(t.getDate()).padStart(2,"0");
+      $("date-achat").value=`${yyyy}-${mm}-${dd}`;
+      $("date-frais").value=`${yyyy}-${mm}-${dd}`;
+      $("date-vente").value=`${yyyy}-${mm}-${dd}`;
+      $("date-paiement").value=`${yyyy}-${mm}-${dd}`;
+    })();
 
-$("submit").addEventListener("click", async ()=>{
-  $("submit").disabled=true; $("feedback").style.display="none"; $("error").style.display="none";
-  const type=$("type").value; const p={ type };
+    $("submit").addEventListener("click", async ()=>{
+      $("submit").disabled=true; $("feedback").style.display="none"; $("error").style.display="none";
+      const type=$("type").value; const p={ type };
+      const need = v => v!=null && String(v).trim()!=="";
 
-  const need = v => v!=null && String(v).trim()!=="";
+      if(type==="Achat stock"){
+        if(!need($("montant-achat").value)) return onErr("Montant requis.");
+        p.item=$("item").value; p.dateISO=$("date-achat").value; p.montant=$("montant-achat").value; p.fournisseur=$("fournisseur").value;
+      } else if(type==="Frais annexes"){
+        if(!need($("montant-frais").value)) return onErr("Montant requis.");
+        p.fraisDesc=$("frais-desc").value; p.dateISO=$("date-frais").value; p.montant=$("montant-frais").value; p.categorie=$("categorie").value;
+      } else if(type==="Vente/Cashout"){
+        if(!need($("montant-vente").value)) return onErr("Montant requis.");
+        p.dateISO=$("date-vente").value; p.montant=$("montant-vente").value; p.compteVinted=$("compte-vinted").value;
+      } else if(type==="Abonnement (mensuel)"){
+        if(!need($("abo-montant").value)) return onErr("Montant requis.");
+        p.aboNom=$("abo-nom").value; p.montant=$("abo-montant").value; p.aboJour=$("abo-jour").value; p.categorie=$("abo-categorie").value; p.aboActif=$("abo-actif").checked;
+      } else {
+        if(!need($("montant-paiement").value)) return onErr("Montant requis.");
+        p.dateISO=$("date-paiement").value; p.montant=$("montant-paiement").value;
+      }
 
-  if(type==="Achat stock"){
-    if(!need($("montant-achat").value)) return onErr("Montant requis.");
-    p.item=$("item").value; p.dateISO=$("date-achat").value; p.montant=$("montant-achat").value; p.fournisseur=$("fournisseur").value;
-  } else if(type==="Frais annexes"){
-    if(!need($("montant-frais").value)) return onErr("Montant requis.");
-    p.fraisDesc=$("frais-desc").value; p.dateISO=$("date-frais").value; p.montant=$("montant-frais").value; p.categorie=$("categorie").value;
-  } else if(type==="Vente/Cashout"){
-    if(!need($("montant-vente").value)) return onErr("Montant requis.");
-    p.dateISO=$("date-vente").value; p.montant=$("montant-vente").value; p.compteVinted=$("compte-vinted").value;
-  } else if(type==="Abonnement (mensuel)"){
-    if(!need($("abo-montant").value)) return onErr("Montant requis.");
-    p.aboNom=$("abo-nom").value; p.montant=$("abo-montant").value; p.aboJour=$("abo-jour").value; p.categorie=$("abo-categorie").value; p.aboActif=$("abo-actif").checked;
-  } else {
-    if(!need($("montant-paiement").value)) return onErr("Montant requis.");
-    p.dateISO=$("date-paiement").value; p.montant=$("montant-paiement").value;
-  }
+      try{
+        const form = new URLSearchParams(); Object.entries(p).forEach(([k,v])=>form.append(k,String(v)));
+        const r = await fetch(ENDPOINT, { method:"POST", headers:{ "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8" }, body: form.toString() });
+        const json = await r.json().catch(()=>({}));
+        if(!r.ok||json.ok===false) throw new Error(json.error||("HTTP "+r.status));
 
-  try{
-    const form = new URLSearchParams(); Object.entries(p).forEach(([k,v])=>form.append(k,String(v)));
-    const r = await fetch(ENDPOINT, { method:"POST", headers:{ "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8" }, body: form.toString() });
-    const json = await r.json().catch(()=>({}));
-    if(!r.ok || json.ok===false) throw new Error(json.error || ("HTTP "+r.status));
+        $("feedback").textContent="Ajouté ✅"; $("feedback").style.display="block";
+        if(type==="Achat stock"){ $("item").value=""; $("montant-achat").value=""; }
+        else if(type==="Frais annexes"){ $("frais-desc").value=""; $("montant-frais").value=""; }
+        else if(type==="Vente/Cashout"){ $("montant-vente").value=""; }
+        else if(type==="Abonnement (mensuel)"){ $("abo-nom").value=""; $("abo-montant").value=""; }
+        else { $("montant-paiement").value=""; }
+      }catch(e){
+        $("error").textContent="Erreur: "+e.message; $("error").style.display="block";
+      }finally{ $("submit").disabled=false; }
+    });
 
-    $("feedback").textContent="Ajouté ✅"; $("feedback").style.display="block";
-    if(type==="Achat stock"){ $("item").value=""; $("montant-achat").value=""; }
-    else if(type==="Frais annexes"){ $("frais-desc").value=""; $("montant-frais").value=""; }
-    else if(type==="Vente/Cashout"){ $("montant-vente").value=""; }
-    else if(type==="Abonnement (mensuel)"){ $("abo-nom").value=""; $("abo-montant").value=""; }
-    else { $("montant-paiement").value=""; }
-  }catch(e){
-    $("error").textContent="Erreur: "+e.message; $("error").style.display="block";
-  }finally{ $("submit").disabled=false; }
-});
-
-function onErr(msg){ $("error").textContent=msg; $("error").style.display="block"; $("submit").disabled=false; }
-switchTypeUI();
-loadLists();
-
-// PWA: (re)charge le SW à chaque déploiement (bump version dans sw.js)
-if("serviceWorker" in navigator){ navigator.serviceWorker.register("sw.js"); }
+    function onErr(msg){ $("error").textContent=msg; $("error").style.display="block"; $("submit").disabled=false; }
+    switchTypeUI();
+    loadLists();
+  </script>
+</body>
+</html>
