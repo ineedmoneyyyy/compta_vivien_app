@@ -1,7 +1,7 @@
 {
   "name": "I Need Resell – Saisie",
   "short_name": "INR Saisie",
-  "start_url": "./",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#f2f2f7",
   "theme_color": "#6f57d3",
