@@ -14,7 +14,6 @@
     .screen{ position:fixed; inset:0; display:flex; flex-direction:column;
       padding:calc(env(safe-area-inset-top,0)) env(safe-area-inset-right,0) 0 env(safe-area-inset-left,0); }
     .wrap{ width:100%; max-width:var(--maxw); margin:0 auto; box-sizing:border-box; padding:0 var(--pad); }
-    .header{ width:100%; background:var(--bg); }
     .header .wrap{ padding:10px var(--pad) 4px; }
     .brand{ display:flex; align-items:center; gap:10px; }
     .brand img{ width:28px; height:28px; border-radius:6px; }
@@ -165,8 +164,8 @@
   </div>
 
   <script>
-    // 🔗 METS ICI l’URL /exec de TON Apps Script "Compta perso"
-    const ENDPOINT = "https://script.google.com/macros/s/AKfycbzF3P3AE1hcHuyFRZLnBS9eKtu0nz1jVyLxv8Ej0CbA78G-_ssXd2e-I9zgk58qqke46w/exec";
+    // 🔗 Mets ICI l'URL /exec du Apps Script "Compta perso"
+    const ENDPOINT = "https://script.google.com/macros/s/TON_ID_EXEC/exec";
 
     const $ = id => document.getElementById(id);
     const blocs = {
@@ -177,18 +176,18 @@
       "Paiement":"bloc-paiement"
     };
 
-    function switchTypeUI(){
-      const t=$("type").value;
-      Object.values(blocs).forEach(id=>$(id).classList.add("hidden"));
+    function showBloc(){
+      const t = $("type").value;
+      Object.values(blocs).forEach(id => $(id).classList.add("hidden"));
       $(blocs[t]).classList.remove("hidden");
     }
-    $("type").addEventListener("change", switchTypeUI);
+    $("type").addEventListener("change", showBloc);
 
     function fillSelect(sel, arr){ sel.innerHTML=""; (arr||[]).forEach(v=>{const o=document.createElement("option"); o.value=o.textContent=v; sel.appendChild(o);}); }
     async function loadLists(){
       try{
-        const r=await fetch(ENDPOINT+"?api=lists");
-        const {data}=await r.json();
+        const r = await fetch(ENDPOINT+"?api=lists",{cache:"no-store"});
+        const {data} = await r.json();
         fillSelect($("fournisseur"), data.fournisseurs);
         fillSelect($("categorie"), data.categories);
         fillSelect($("compte-vinted"), data.comptesVinted);
@@ -198,20 +197,16 @@
       }
     }
 
+    // + ajouter (Paramètres)
     document.body.addEventListener("click", async (e)=>{
       if(!e.target.matches(".add-link")) return;
-      const kind=e.target.getAttribute("data-kind");
-      const labels={categorie:"Nouvelle catégorie",fournisseur:"Nouveau fournisseur",compteVinted:"Nouveau compte Vinted"};
-      const val=prompt((labels[kind]||"Nouvelle valeur")+" :");
+      const kind = e.target.getAttribute("data-kind");
+      const label = {fournisseur:"Nouveau fournisseur", categorie:"Nouvelle catégorie", compteVinted:"Nouveau compte Vinted"}[kind] || "Nouvelle valeur";
+      const val = prompt(label+" :");
       if(!val) return;
-
       try{
-        const body = new URLSearchParams({ action:"addParam", kind, value:val }).toString();
-        const r = await fetch(ENDPOINT, {
-          method:"POST",
-          headers:{ "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8" },
-          body
-        });
+        const body = new URLSearchParams({action:"addParam", kind, value:val}).toString();
+        const r = await fetch(ENDPOINT, {method:"POST", headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"}, body});
         const json = await r.json();
         if(!json.ok) throw new Error(json.error||"Erreur ajout paramètre");
         const d=json.data||{};
@@ -221,6 +216,7 @@
       }catch(err){ alert("Erreur: "+err.message); }
     });
 
+    // Dates par défaut = aujourd'hui
     (function setToday(){
       const t=new Date(), yyyy=t.getFullYear(), mm=String(t.getMonth()+1).padStart(2,"0"), dd=String(t.getDate()).padStart(2,"0");
       $("date-achat").value=`${yyyy}-${mm}-${dd}`;
@@ -229,6 +225,7 @@
       $("date-paiement").value=`${yyyy}-${mm}-${dd}`;
     })();
 
+    // Soumission
     $("submit").addEventListener("click", async ()=>{
       $("submit").disabled=true; $("feedback").style.display="none"; $("error").style.display="none";
       const type=$("type").value; const p={ type };
@@ -246,18 +243,18 @@
       } else if(type==="Abonnement (mensuel)"){
         if(!need($("abo-montant").value)) return onErr("Montant requis.");
         p.aboNom=$("abo-nom").value; p.montant=$("abo-montant").value; p.aboJour=$("abo-jour").value; p.categorie=$("abo-categorie").value; p.aboActif=$("abo-actif").checked;
-      } else {
+      } else { // Paiement
         if(!need($("montant-paiement").value)) return onErr("Montant requis.");
         p.dateISO=$("date-paiement").value; p.montant=$("montant-paiement").value;
       }
 
       try{
         const form = new URLSearchParams(); Object.entries(p).forEach(([k,v])=>form.append(k,String(v)));
-        const r = await fetch(ENDPOINT, { method:"POST", headers:{ "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8" }, body: form.toString() });
+        const r = await fetch(ENDPOINT, { method:"POST", headers:{ "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8" }, body: form.toString(), cache:"no-store" });
         const json = await r.json().catch(()=>({}));
         if(!r.ok||json.ok===false) throw new Error(json.error||("HTTP "+r.status));
-
         $("feedback").textContent="Ajouté ✅"; $("feedback").style.display="block";
+
         if(type==="Achat stock"){ $("item").value=""; $("montant-achat").value=""; }
         else if(type==="Frais annexes"){ $("frais-desc").value=""; $("montant-frais").value=""; }
         else if(type==="Vente/Cashout"){ $("montant-vente").value=""; }
@@ -269,7 +266,9 @@
     });
 
     function onErr(msg){ $("error").textContent=msg; $("error").style.display="block"; $("submit").disabled=false; }
-    switchTypeUI();
+
+    // init
+    showBloc();
     loadLists();
   </script>
 </body>
