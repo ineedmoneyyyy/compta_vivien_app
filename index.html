@@ -8,40 +8,37 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="apple-touch-icon" href="logo1.png" />
   <style>
-    :root{
-      --primary:#6f57d3; --bg:#f2f2f7; --fg:#111; --border:#d9d9de;
-      --r:16px; --pad:18px; --maxw:390px;
-    }
-    html,body{height:100%;}
+    :root{ --primary:#6f57d3; --bg:#f2f2f7; --fg:#111; --border:#d9d9de; --r:14px; --pad:18px; --maxw:390px; }
+    html,body{height:100%; overflow:hidden;}
     body{
       margin:0; padding:0; background:var(--bg); color:var(--fg);
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-      font-size:18px; line-height:1.35; -webkit-text-size-adjust:100%;
-      overflow-x:hidden;
+      font-size:18px; line-height:1.35; -webkit-text-size-adjust:100%; overscroll-behavior:none;
     }
-    .screen{min-height:100vh; display:flex; flex-direction:column;}
+    .screen{ position:fixed; inset:0; display:flex; flex-direction:column;
+      padding:calc(env(safe-area-inset-top,0)) env(safe-area-inset-right,0) 0 env(safe-area-inset-left,0);
+    }
     .wrap{ width:100%; max-width:var(--maxw); margin:0 auto; box-sizing:border-box; padding:0 var(--pad); }
 
-    /* ===== Bandeau GIF fin avec bords arrondis ===== */
-    .header{ padding:12px var(--pad) 0; }
+    /* --------- HEADER (GIF arrondi) --------- */
+    .header{ width:100%; background:var(--bg); }
+    .header .wrap{ padding:10px var(--pad) 4px; }
     .gif-box{
-      width:100%; height:56px;
-      border-radius:22px;           /* ARRONDIS visibles */
-      overflow:hidden;              /* masque l’intérieur -> pas d’angles carrés */
+      width:100%; height:56px; border-radius:18px; overflow:hidden; background:transparent;
       display:flex; align-items:center; justify-content:center;
-      background:transparent;
     }
-    .gif-box img{
-      width:100%; height:100%; object-fit:contain; display:block;
-    }
+    .gif-box img{ width:100%; height:100%; object-fit:contain; display:block; }
 
-    label{ display:block; font-weight:700; margin:14px 0 8px; }
-
+    /* --------- CONTENU --------- */
+    .content{ flex:1; min-height:0; display:flex; }
+    .content .wrap{ padding:10px var(--pad) 12px; display:flex; flex-direction:column; gap:14px; overflow:auto; }
+    label{ display:block; font-size:18px; font-weight:700; margin:6px 0 8px; }
     input, select{
-      width:100%; box-sizing:border-box; background:#fff; border:1px solid var(--border); border-radius:12px;
-      padding:12px 14px; font-size:18px; min-height:50px; outline:none;
+      width:100%; box-sizing:border-box; background:#fff; border:1px solid var(--border); border-radius:var(--r);
+      padding:14px 16px; font-size:18px; min-height:52px; outline:none;
     }
-    /* Flèche bleue sur les listes */
+    input:focus,select:focus{ border-color:#c7b8ff; box-shadow:0 0 0 3px rgba(111,87,211,.15); }
+    /* petite flèche bleue à droite des listes */
     select{
       appearance:none; -webkit-appearance:none;
       background-image:
@@ -53,146 +50,152 @@
       background-size:6px 6px, 6px 6px; background-repeat:no-repeat;
     }
 
-    .row{ display:flex; gap:16px; align-items:flex-start; margin:0 0 12px 0; }
-    .field{ flex:1; min-width:0; }
-    .hint{ font-size:14px; color:#666; margin-top:6px; }
+    .row{ display:flex; gap:22px; margin-bottom:8px; }
+    .row .field{ flex:1; min-width:0; display:flex; flex-direction:column; }
+    .hint{ font-size:14px; color:#666; margin-top:8px; }
+    .subline{ display:flex; justify-content:flex-end; margin-top:6px; }
+    .add-link{ background:none; border:none; color:var(--primary); font-size:15px; text-decoration:underline; padding:0; cursor:pointer; }
+    .hidden{ display:none !important; }
 
-    .actions{ padding:16px var(--pad) calc(env(safe-area-inset-bottom,0) + 16px); }
+    /* --------- FOOTER / ACTIONS --------- */
+    .actions{
+      padding:10px 0 calc(env(safe-area-inset-bottom,0) + 14px);
+      background:linear-gradient(180deg, rgba(242,242,247,0) 0%, var(--bg) 50%);
+    }
+    .actions .wrap{ padding-top:0; }
     #submit{
       width:100%; height:60px; border:none; border-radius:16px; background:var(--primary); color:#fff;
-      font-size:20px; font-weight:800; letter-spacing:.2px; box-shadow:0 10px 24px rgba(111,87,211,.25);
-      cursor:pointer; touch-action:manipulation;
+      font-size:20px; font-weight:800; letter-spacing:.2px; box-shadow:0 10px 24px rgba(111,87,211,.25); cursor:pointer; touch-action:manipulation;
     }
-    #submit:disabled{ opacity:.6; cursor:not-allowed; }
-    .msg{ font-size:16px; margin-top:8px; }
-    .ok{ color:#0a8a0a; } .err{ color:#c62828; }
-
-    .link{ background:none; border:none; color:#6f57d3; text-decoration:underline; padding:0; cursor:pointer; font-size:16px; }
-
-    /* Toggle Actif */
-    .toggle{ display:flex; align-items:center; gap:12px; margin-top:8px; }
-    .toggle input[type="checkbox"]{ width:44px; height:26px; }
+    #submit:disabled{ opacity:.6; cursor:default; }
+    .msg{ font-size:16px; color:#0a8a0a; margin-top:6px; }
+    .err{ font-size:16px; color:#c62828; margin-top:6px; }
   </style>
 </head>
 <body>
   <div class="screen">
-    <header class="header wrap">
-      <div class="gif-box"><img src="go.gif" alt="I Need Resell"></div>
-    </header>
-
-    <main class="wrap" style="padding-bottom:8px;">
-      <label>Type de transaction</label>
-      <select id="type">
-        <option>Achat stock</option>
-        <option>Frais annexes</option>
-        <option>Vente/Cashout</option>
-        <option>Abonnement (mensuel)</option>
-        <option>Paiement</option>
-      </select>
-
-      <!-- ACHAT -->
-      <div id="bloc-achat" class="bloc">
-        <label>Item / Référence</label>
-        <input id="item" type="text" placeholder="Ex: 100 Jeans Levi's 501">
-        <div class="row">
-          <div class="field">
-            <label>Date</label>
-            <input id="date-achat" type="date">
-          </div>
-          <div class="field">
-            <label>Montant (€)</label>
-            <input id="montant-achat" type="text" inputmode="decimal" placeholder="ex: 79,90">
-            <div class="hint">Décimales : virgule ou point</div>
-          </div>
-        </div>
-        <label>Fournisseur</label>
-        <select id="fournisseur"></select>
-        <div><button class="link" data-kind="fournisseur">+ ajouter</button></div>
+    <div class="header">
+      <div class="wrap">
+        <div class="gif-box"><img src="go.gif" alt="I Need Resell"></div>
       </div>
+    </div>
 
-      <!-- FRAIS -->
-      <div id="bloc-frais" class="bloc" style="display:none;">
-        <label>Description du frais</label>
-        <input id="frais-desc" type="text" placeholder="Ex: URSSAF, pochettes, etc.">
-        <div class="row">
-          <div class="field">
-            <label>Date</label>
-            <input id="date-frais" type="date">
+    <main class="content">
+      <div class="wrap">
+        <label>Type de transaction</label>
+        <select id="type">
+          <option>Achat stock</option>
+          <option>Frais annexes</option>
+          <option>Vente/Cashout</option>
+          <option>Abonnement (mensuel)</option>
+          <option>Paiement</option>
+        </select>
+
+        <!-- ACHAT -->
+        <div id="bloc-achat" class="bloc">
+          <label>Item / Référence</label>
+          <input id="item" type="text" placeholder="Ex: 100 Jeans Levi's 501">
+          <div class="row">
+            <div class="field">
+              <label>Date</label>
+              <input id="date-achat" type="date">
+            </div>
+            <div class="field">
+              <label>Montant (€)</label>
+              <input id="montant-achat" type="text" inputmode="decimal" placeholder="ex: 79,90">
+              <div class="hint">Décimales : virgule ou point</div>
+            </div>
           </div>
-          <div class="field">
-            <label>Montant (€)</label>
-            <input id="montant-frais" type="text" inputmode="decimal" placeholder="ex: 12,50">
+          <label>Fournisseur</label>
+          <select id="fournisseur"></select>
+          <div class="subline"><button class="add-link" type="button" data-kind="fournisseur">+ ajouter</button></div>
+        </div>
+
+        <!-- FRAIS -->
+        <div id="bloc-frais" class="bloc hidden">
+          <label>Description du frais</label>
+          <input id="frais-desc" type="text" placeholder="Ex: Pochettes, URSSAF, etc.">
+          <div class="row">
+            <div class="field">
+              <label>Date</label>
+              <input id="date-frais" type="date">
+            </div>
+            <div class="field">
+              <label>Montant (€)</label>
+              <input id="montant-frais" type="text" inputmode="decimal" placeholder="ex: 12,50">
+            </div>
+          </div>
+          <label>Catégorie</label>
+          <select id="categorie"></select>
+          <div class="subline"><button class="add-link" type="button" data-kind="categorie">+ ajouter</button></div>
+        </div>
+
+        <!-- VENTE -->
+        <div id="bloc-vente" class="bloc hidden">
+          <div class="row">
+            <div class="field">
+              <label>Date</label>
+              <input id="date-vente" type="date">
+            </div>
+            <div class="field">
+              <label>Montant (€)</label>
+              <input id="montant-vente" type="text" inputmode="decimal" placeholder="ex: 45">
+            </div>
+          </div>
+          <label>Compte Vinted</label>
+          <select id="compte-vinted"></select>
+          <div class="subline"><button class="add-link" type="button" data-kind="compteVinted">+ ajouter</button></div>
+        </div>
+
+        <!-- ABONNEMENT -->
+        <div id="bloc-abo" class="bloc hidden">
+          <label>Nom de l’abonnement</label>
+          <input id="abo-nom" type="text" placeholder="Ex: ChatGPT Plus">
+          <div class="row">
+            <div class="field">
+              <label>Montant (€)</label>
+              <input id="abo-montant" type="text" inputmode="decimal" placeholder="ex: 20">
+            </div>
+            <div class="field">
+              <label>Jour du mois</label>
+              <input id="abo-jour" type="number" min="1" max="31" value="5">
+            </div>
+          </div>
+          <label>Catégorie</label>
+          <select id="abo-categorie"></select>
+          <div class="subline"><button class="add-link" type="button" data-kind="categorie">+ ajouter</button></div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+            <input id="abo-actif" type="checkbox" checked style="width:22px;height:22px;">
+            <label for="abo-actif" style="margin:0;font-weight:600;">Actif</label>
           </div>
         </div>
-        <label>Catégorie</label>
-        <select id="categorie"></select>
-        <div><button class="link" data-kind="categorie">+ ajouter</button></div>
+
+        <!-- PAIEMENT -->
+        <div id="bloc-paiement" class="bloc hidden">
+          <div class="row">
+            <div class="field">
+              <label>Date</label>
+              <input id="date-paiement" type="date">
+            </div>
+            <div class="field">
+              <label>Montant (€)</label>
+              <input id="montant-paiement" type="text" inputmode="decimal" placeholder="ex: 1000">
+            </div>
+          </div>
+        </div>
+
+        <div id="feedback" class="msg" style="display:none;"></div>
+        <div id="error" class="err" style="display:none;"></div>
       </div>
-
-      <!-- VENTE -->
-      <div id="bloc-vente" class="bloc" style="display:none;">
-        <div class="row">
-          <div class="field">
-            <label>Date</label>
-            <input id="date-vente" type="date">
-          </div>
-          <div class="field">
-            <label>Montant (€)</label>
-            <input id="montant-vente" type="text" inputmode="decimal" placeholder="ex: 45">
-          </div>
-        </div>
-        <label>Compte Vinted</label>
-        <select id="compte-vinted"></select>
-        <div><button class="link" data-kind="compteVinted">+ ajouter</button></div>
-      </div>
-
-      <!-- ABONNEMENT -->
-      <div id="bloc-abo" class="bloc" style="display:none;">
-        <label>Nom de l’abonnement</label>
-        <input id="abo-nom" type="text" placeholder="Ex: ChatGPT Plus">
-        <div class="row">
-          <div class="field">
-            <label>Montant (€)</label>
-            <input id="abo-montant" type="text" inputmode="decimal" placeholder="ex: 20">
-          </div>
-          <div class="field">
-            <label>Jour du mois</label>
-            <input id="abo-jour" type="number" min="1" max="31" value="5">
-          </div>
-        </div>
-        <label>Catégorie</label>
-        <select id="abo-categorie"></select>
-        <div><button class="link" data-kind="categorie">+ ajouter</button></div>
-        <div class="toggle">
-          <input id="abo-actif" type="checkbox" checked>
-          <label for="abo-actif" style="margin:0;font-weight:700;">Actif</label>
-        </div>
-      </div>
-
-      <!-- PAIEMENT -->
-      <div id="bloc-paiement" class="bloc" style="display:none;">
-        <div class="row">
-          <div class="field">
-            <label>Date</label>
-            <input id="date-paiement" type="date">
-          </div>
-          <div class="field">
-            <label>Montant (€)</label>
-            <input id="montant-paiement" type="text" inputmode="decimal" placeholder="ex: 1000">
-          </div>
-        </div>
-      </div>
-
-      <div id="msg" class="msg"></div>
     </main>
 
     <div class="actions">
-      <div class="wrap"><button id="submit">+ Ajouter</button></div>
+      <div class="wrap"><button id="submit">➕ Ajouter</button></div>
     </div>
   </div>
 
   <script>
-    // ====== Apps Script ======
+    // ========= ENDPOINT de TON projet =========
     const ENDPOINT = "https://script.google.com/macros/s/AKfycbzF3P3AE1hcHuyFRZLnBS9eKtu0nz1jVyLxv8Ej0CbA78G-_ssXd2e-I9zgk58qqke46w/exec";
 
     const $ = id => document.getElementById(id);
@@ -203,134 +206,110 @@
       "Abonnement (mensuel)":"bloc-abo",
       "Paiement":"bloc-paiement"
     };
-
-    function showBloc(){
-      const t = $("type").value;
-      Object.values(blocs).forEach(id => document.getElementById(id).style.display = "none");
-      document.getElementById(blocs[t]).style.display = "block";
-      $("#msg").className="msg"; $("#msg").textContent="";
+    function switchTypeUI(){
+      const t=$("type").value;
+      Object.values(blocs).forEach(id=>$(id).classList.add("hidden"));
+      $(blocs[t]).classList.remove("hidden");
+      $("feedback").style.display="none";
+      $("error").style.display="none";
     }
-    $("type").addEventListener("change", showBloc);
+    $("type").addEventListener("change", switchTypeUI);
 
-    function todayISO(){
-      const t=new Date(), y=t.getFullYear(), m=String(t.getMonth()+1).padStart(2,"0"), d=String(t.getDate()).padStart(2,"0");
-      return `${y}-${m}-${d}`;
+    function fillSelect(sel, arr){
+      sel.innerHTML="";
+      (arr||[]).forEach(v=>{
+        const o=document.createElement("option");
+        o.value=o.textContent=v;
+        sel.appendChild(o);
+      });
     }
-    ["date-achat","date-frais","date-vente","date-paiement"].forEach(id => { const el=$(id); if(el) el.value=todayISO(); });
-
-    function fillSelect(el, arr){ el.innerHTML = (arr||[]).map(v=>`<option>${v}</option>`).join(""); }
-
     async function loadLists(){
       try{
         const r=await fetch(ENDPOINT+"?api=lists");
         const {data}=await r.json();
+        // seulement les listes utiles à CE projet
         fillSelect($("fournisseur"), data.fournisseurs);
         fillSelect($("categorie"), data.categories);
         fillSelect($("compte-vinted"), data.comptesVinted);
         fillSelect($("abo-categorie"), data.categories);
       }catch(e){
-        $("#msg").className="msg err"; $("#msg").textContent="Erreur listes : "+e.message;
+        $("error").textContent="Erreur listes: "+e.message; $("error").style.display="block";
       }
     }
-    loadLists(); showBloc();
 
-    // Ajout dans Paramètres
+    // + ajouter (Paramètres) — form-urlencoded
     document.body.addEventListener("click", async (e)=>{
-      if(!e.target.matches(".link")) return;
-      const kind = e.target.getAttribute("data-kind");
-      const labels = {fournisseur:"Nouveau fournisseur", categorie:"Nouvelle catégorie", compteVinted:"Nouveau compte Vinted"};
-      const val = prompt(labels[kind]+" :");
+      if(!e.target.matches(".add-link")) return;
+      const kind=e.target.getAttribute("data-kind");
+      const labels={categorie:"Nouvelle catégorie",fournisseur:"Nouveau fournisseur",compteVinted:"Nouveau compte Vinted"};
+      const val=prompt((labels[kind]||"Nouvelle valeur")+" :");
       if(!val) return;
-      const btn = e.target, original = btn.textContent;
+
+      const btn=e.target; const original=btn.textContent; btn.textContent="Ajout en cours…";
       try{
-        btn.textContent = "Ajout en cours…";
         const params = new URLSearchParams();
-        params.append("action","addParam");
-        params.append("kind", kind);
-        params.append("value", val);
+        params.append("action","addParam"); params.append("kind", kind); params.append("value", val);
         const r = await fetch(ENDPOINT, {
           method:"POST",
           headers:{ "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8" },
           body: params.toString()
         });
         const json = await r.json();
-        if(!json.ok) throw new Error(json.error||"Erreur ajout");
-        const d = json.data || {};
-        if(kind==="fournisseur") fillSelect($("fournisseur"), d.fournisseurs||[]);
-        if(kind==="categorie"){ fillSelect($("categorie"), d.categories||[]); fillSelect($("abo-categorie"), d.categories||[]); }
-        if(kind==="compteVinted") fillSelect($("compte-vinted"), d.comptesVinted||[]);
-        btn.textContent = "Ajouté ✅";
-        setTimeout(()=>btn.textContent=original, 900);
-      }catch(err){
-        alert("Erreur: "+err.message);
-        btn.textContent = original;
-      }
+        if(!json.ok) throw new Error(json.error||"Erreur ajout paramètre");
+        const d=json.data||{};
+        if(kind==='fournisseur') fillSelect($("fournisseur"), d.fournisseurs||[]);
+        if(kind==='categorie'){ fillSelect($("categorie"), d.categories||[]); fillSelect($("abo-categorie"), d.categories||[]); }
+        if(kind==='compteVinted') fillSelect($("compte-vinted"), d.comptesVinted||[]);
+        btn.textContent="Ajouté ✅"; setTimeout(()=>btn.textContent=original, 900);
+      }catch(err){ alert("Erreur: "+err.message); btn.textContent=original; }
     });
+
+    // Dates : aujourd’hui par défaut (format input type="date")
+    (function setToday(){
+      const t=new Date(), yyyy=t.getFullYear(), mm=String(t.getMonth()+1).padStart(2,"0"), dd=String(t.getDate()).padStart(2,"0");
+      const iso=`${yyyy}-${mm}-${dd}`;
+      ["date-achat","date-frais","date-vente","date-paiement"].forEach(id=>{ const el=$(id); if(el) el.value=iso; });
+    })();
 
     function need(v){ return v!=null && String(v).trim()!==""; }
     function validate(type){
-      if(type==="Achat stock"){
-        return need($("#item").value) && need($("#date-achat").value) && need($("#montant-achat").value) && need($("#fournisseur").value);
-      } else if(type==="Frais annexes"){
-        return need($("#frais-desc").value) && need($("#date-frais").value) && need($("#montant-frais").value) && need($("#categorie").value);
-      } else if(type==="Vente/Cashout"){
-        return need($("#date-vente").value) && need($("#montant-vente").value) && need($("#compte-vinted").value);
-      } else if(type==="Abonnement (mensuel)"){
-        return need($("#abo-nom").value) && need($("#abo-montant").value) && need($("#abo-jour").value) && need($("#abo-categorie").value);
-      } else {
-        return need($("#date-paiement").value) && need($("#montant-paiement").value);
-      }
+      if(type==="Achat stock"){ return need($("item").value)&&need($("date-achat").value)&&need($("montant-achat").value)&&need($("fournisseur").value); }
+      if(type==="Frais annexes"){ return need($("frais-desc").value)&&need($("date-frais").value)&&need($("montant-frais").value)&&need($("categorie").value); }
+      if(type==="Vente/Cashout"){ return need($("date-vente").value)&&need($("montant-vente").value)&&need($("compte-vinted").value); }
+      if(type==="Abonnement (mensuel)"){ return need($("abo-nom").value)&&need($("abo-montant").value)&&need($("abo-jour").value)&&need($("abo-categorie").value); }
+      return need($("date-paiement").value)&&need($("montant-paiement").value);
     }
     function clearFields(type){
-      if(type==="Achat stock"){
-        $("#item").value=""; $("#montant-achat").value="";
-      } else if(type==="Frais annexes"){
-        $("#frais-desc").value=""; $("#montant-frais").value="";
-      } else if(type==="Vente/Cashout"){
-        $("#montant-vente").value="";
-      } else if(type==="Abonnement (mensuel)"){
-        $("#abo-nom").value=""; $("#abo-montant").value=""; $("#abo-jour").value="5"; $("#abo-actif").checked = true;
-      } else { $("#montant-paiement").value=""; }
+      if(type==="Achat stock"){ $("item").value=""; $("montant-achat").value=""; }
+      else if(type==="Frais annexes"){ $("frais-desc").value=""; $("montant-frais").value=""; }
+      else if(type==="Vente/Cashout"){ $("montant-vente").value=""; }
+      else if(type==="Abonnement (mensuel)"){ $("abo-nom").value=""; $("abo-montant").value=""; $("abo-jour").value="5"; $("abo-actif").checked=true; }
+      else { $("montant-paiement").value=""; }
     }
 
-    $("#submit").addEventListener("click", async ()=>{
-      const type = $("#type").value;
-      $("#msg").className="msg"; $("#msg").textContent="";
-      if(!validate(type)){
-        $("#msg").className="msg err"; $("#msg").textContent="Merci de remplir tous les champs requis.";
-        return;
-      }
+    // Envoi — form-urlencoded (comme ton exemple)
+    $("submit").addEventListener("click", async ()=>{
+      $("feedback").style.display="none"; $("error").style.display="none";
+      const type=$("type").value;
+      if(!validate(type)){ $("error").textContent="Merci de remplir tous les champs requis."; $("error").style.display="block"; return; }
 
-      $("#submit").disabled = true;
-      const originalBtn = $("#submit").textContent;
-      $("#submit").textContent = "Ajout en cours…";
+      const btn=$("submit"); const prev=btn.textContent; btn.disabled=true; btn.textContent="Ajout en cours…";
 
-      const p = new URLSearchParams();
-      p.append("type", type);
-
+      const p = new URLSearchParams(); p.append("type", type);
       if(type==="Achat stock"){
-        p.append("item", $("#item").value);
-        p.append("dateISO", $("#date-achat").value);
-        p.append("montant", $("#montant-achat").value);
-        p.append("fournisseur", $("#fournisseur").value);
+        p.append("item", $("item").value); p.append("dateISO", $("date-achat").value); p.append("montant", $("montant-achat").value);
+        p.append("fournisseur", $("fournisseur").value);
       } else if(type==="Frais annexes"){
-        p.append("fraisDesc", $("#frais-desc").value);
-        p.append("dateISO", $("#date-frais").value);
-        p.append("montant", $("#montant-frais").value);
-        p.append("categorie", $("#categorie").value);
+        p.append("fraisDesc", $("frais-desc").value); p.append("dateISO", $("date-frais").value); p.append("montant", $("montant-frais").value);
+        p.append("categorie", $("categorie").value);
       } else if(type==="Vente/Cashout"){
-        p.append("dateISO", $("#date-vente").value);
-        p.append("montant", $("#montant-vente").value);
-        p.append("compteVinted", $("#compte-vinted").value);
+        p.append("dateISO", $("date-vente").value); p.append("montant", $("montant-vente").value); p.append("compteVinted", $("compte-vinted").value);
       } else if(type==="Abonnement (mensuel)"){
-        p.append("aboNom", $("#abo-nom").value);
-        p.append("montant", $("#abo-montant").value);
-        p.append("aboJour", $("#abo-jour").value);
-        p.append("categorie", $("#abo-categorie").value);
-        p.append("aboActif", $("#abo-actif").checked ? "true" : "false");
+        p.append("aboNom", $("abo-nom").value); p.append("montant", $("abo-montant").value); p.append("aboJour", $("abo-jour").value);
+        p.append("categorie", $("abo-categorie").value);
+        p.append("aboActif", $("abo-actif").checked ? "true" : "false"); // -> GS convertira en Oui/Non
       } else {
-        p.append("dateISO", $("#date-paiement").value);
-        p.append("montant", $("#montant-paiement").value);
+        p.append("dateISO", $("date-paiement").value); p.append("montant", $("montant-paiement").value);
       }
 
       try{
@@ -339,17 +318,19 @@
           headers:{ "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8" },
           body: p.toString()
         });
-        const j = await r.json().catch(()=>({}));
-        if(!r.ok || j.ok===false) throw new Error(j.error || ("HTTP "+r.status));
-        $("#msg").className="msg ok"; $("#msg").textContent="Ajouté ✅";
+        const json = await r.json().catch(()=>({}));
+        if(!r.ok || json.ok===false) throw new Error(json.error || ("HTTP "+r.status));
+        $("feedback").textContent="Ajouté ✅"; $("feedback").style.display="block";
         clearFields(type);
       }catch(e){
-        $("#msg").className="msg err"; $("#msg").textContent="Erreur : "+e.message;
+        $("error").textContent="Erreur: "+e.message; $("error").style.display="block";
       }finally{
-        $("#submit").disabled = false;
-        $("#submit").textContent = originalBtn;
+        btn.disabled=false; btn.textContent=prev;
       }
     });
+
+    switchTypeUI();
+    loadLists();
   </script>
 </body>
 </html>
