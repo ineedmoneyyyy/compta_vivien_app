@@ -20,19 +20,26 @@
     }
     .wrap{ width:100%; max-width:var(--maxw); margin:0 auto; box-sizing:border-box; padding:0 var(--pad); }
 
-    /* --------- HEADER (GIF arrondi et rogné) --------- */
+    /* ---------- HEADER (angles arrondis, aucune bordure ajoutée) ---------- */
     .header{ width:100%; background:var(--bg); }
     .header .wrap{ padding:10px var(--pad) 4px; }
-    .gif-box{
-      width:100%; height:56px; border-radius:18px; overflow:hidden; background:transparent;
+    .gif-rail{
+      width:100%;
+      height:56px;                 /* même hauteur qu’avant */
+      border-radius:18px;          /* ARRONDI */
+      overflow:hidden;             /* coupe aux coins */
       display:flex; align-items:center; justify-content:center;
+      background:transparent;      /* pas de bordure, pas de fond ajouté */
     }
-    .gif-box img{
-      width:100%; height:100%; object-fit:contain; display:block;
-      border-radius:18px; /* double sécurité iOS pour bien rogner les bords */
+    .gif-rail img{
+      width:100%; height:100%;
+      object-fit:contain;          /* on ne rogne pas l’image */
+      display:block;
+      border-radius:18px;          /* double sécurité */
+      -webkit-mask-image: -webkit-radial-gradient(white, black); /* force l’arrondi sur iOS */
     }
 
-    /* --------- CONTENU --------- */
+    /* ---------- CONTENU ---------- */
     .content{ flex:1; min-height:0; display:flex; }
     .content .wrap{ padding:10px var(--pad) 12px; display:flex; flex-direction:column; gap:14px; overflow:auto; }
     label{ display:block; font-size:18px; font-weight:700; margin:6px 0 8px; }
@@ -41,7 +48,6 @@
       padding:14px 16px; font-size:18px; min-height:52px; outline:none;
     }
     input:focus,select:focus{ border-color:#c7b8ff; box-shadow:0 0 0 3px rgba(111,87,211,.15); }
-    /* flèche bleue à droite des listes */
     select{
       appearance:none; -webkit-appearance:none;
       background-image:
@@ -52,7 +58,6 @@
         calc(100% - 14px) calc(50% - 3px);
       background-size:6px 6px, 6px 6px; background-repeat:no-repeat;
     }
-
     .row{ display:flex; gap:22px; margin-bottom:8px; }
     .row .field{ flex:1; min-width:0; display:flex; flex-direction:column; }
     .hint{ font-size:14px; color:#666; margin-top:8px; }
@@ -60,7 +65,6 @@
     .add-link{ background:none; border:none; color:var(--primary); font-size:15px; text-decoration:underline; padding:0; cursor:pointer; }
     .hidden{ display:none !important; }
 
-    /* --------- FOOTER / ACTIONS --------- */
     .actions{
       padding:10px 0 calc(env(safe-area-inset-bottom,0) + 14px);
       background:linear-gradient(180deg, rgba(242,242,247,0) 0%, var(--bg) 50%);
@@ -79,10 +83,14 @@
   <div class="screen">
     <div class="header">
       <div class="wrap">
-        <div class="gif-box"><img src="go.gif" alt="I Need Resell"></div>
+        <!-- GIF avec coins arrondis (aucune autre modif) -->
+        <div class="gif-rail">
+          <img src="go.gif" alt="I Need Resell">
+        </div>
       </div>
     </div>
 
+    <!-- le reste de l’app (inchangé) -->
     <main class="content">
       <div class="wrap">
         <label>Type de transaction</label>
@@ -94,7 +102,6 @@
           <option>Paiement</option>
         </select>
 
-        <!-- ACHAT -->
         <div id="bloc-achat" class="bloc">
           <label>Item / Référence</label>
           <input id="item" type="text" placeholder="Ex: 100 Jeans Levi's 501">
@@ -114,7 +121,6 @@
           <div class="subline"><button class="add-link" type="button" data-kind="fournisseur">+ ajouter</button></div>
         </div>
 
-        <!-- FRAIS -->
         <div id="bloc-frais" class="bloc hidden">
           <label>Description du frais</label>
           <input id="frais-desc" type="text" placeholder="Ex: Pochettes, URSSAF, etc.">
@@ -133,7 +139,6 @@
           <div class="subline"><button class="add-link" type="button" data-kind="categorie">+ ajouter</button></div>
         </div>
 
-        <!-- VENTE -->
         <div id="bloc-vente" class="bloc hidden">
           <div class="row">
             <div class="field">
@@ -150,7 +155,6 @@
           <div class="subline"><button class="add-link" type="button" data-kind="compteVinted">+ ajouter</button></div>
         </div>
 
-        <!-- ABONNEMENT -->
         <div id="bloc-abo" class="bloc hidden">
           <label>Nom de l’abonnement</label>
           <input id="abo-nom" type="text" placeholder="Ex: ChatGPT Plus">
@@ -173,7 +177,6 @@
           </div>
         </div>
 
-        <!-- PAIEMENT -->
         <div id="bloc-paiement" class="bloc hidden">
           <div class="row">
             <div class="field">
@@ -198,7 +201,6 @@
   </div>
 
   <script>
-    // ========= ENDPOINT =========
     const ENDPOINT = "https://script.google.com/macros/s/AKfycbzF3P3AE1hcHuyFRZLnBS9eKtu0nz1jVyLxv8Ej0CbA78G-_ssXd2e-I9zgk58qqke46w/exec";
 
     const $ = id => document.getElementById(id);
@@ -239,7 +241,6 @@
       }
     }
 
-    // + ajouter (Paramètres) — form-urlencoded + états
     document.body.addEventListener("click", async (e)=>{
       if(!e.target.matches(".add-link")) return;
       const kind=e.target.getAttribute("data-kind");
@@ -266,7 +267,6 @@
       }catch(err){ alert("Erreur: "+err.message); btn.textContent=original; }
     });
 
-    // Dates aujourd’hui
     (function setToday(){
       const t=new Date(), yyyy=t.getFullYear(), mm=String(t.getMonth()+1).padStart(2,"0"), dd=String(t.getDate()).padStart(2,"0");
       const iso=`${yyyy}-${mm}-${dd}`;
@@ -289,7 +289,6 @@
       else { $("montant-paiement").value=""; }
     }
 
-    // Envoi — form-urlencoded
     $("submit").addEventListener("click", async ()=>{
       $("feedback").style.display="none"; $("error").style.display="none";
       const type=$("type").value;
@@ -309,9 +308,8 @@
       } else if(type==="Abonnement (mensuel)"){
         p.append("aboNom", $("abo-nom").value); p.append("montant", $("abo-montant").value); p.append("aboJour", $("abo-jour").value);
         p.append("categorie", $("abo-categorie").value);
-        // >>>> IMPORTANT : pour que Apps Script fasse "Non" quand décoché
-        const actifChecked = $("abo-actif").checked;
-        p.append("aboActif", actifChecked ? "1" : ""); // valeur vide => falsy côté GAS => "Non"
+        // Coché => "1", décoché => "" (falsy côté Apps Script => "Non")
+        p.append("aboActif", $("abo-actif").checked ? "1" : "");
       } else {
         p.append("dateISO", $("date-paiement").value); p.append("montant", $("montant-paiement").value);
       }
